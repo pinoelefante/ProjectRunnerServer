@@ -23,7 +23,7 @@
     define("DB_ACTIVITIES_MPLAT", "meetingPointLatitude");
     define("DB_ACTIVITIES_MPADDR", "meetingPointAddress");
     define("DB_ACTIVITIES_GUESTUSERS", "guestUsers");
-    define("DB_ACTIVITIES_REQUIREDPLAYERS", "requiredPlayers");
+    define("DB_ACTIVITIES_MAXPLAYERS", "maxPlayers");
     define("DB_ACTIVITIES_STATUS", "status");
     define("DB_ACTIVITIES_SPORT", "sport");
     define("DB_ACTIVITIES_FEE", "fee");

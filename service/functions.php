@@ -143,4 +143,30 @@
         $code = uniqid($prefix, false).$appendix;
         return $code;
     }
+    function array_remove_keys_starts($array, $keyStart)
+    {
+        $allKeys = array_keys($array);
+        foreach($allKeys as $key)
+        {
+            if(strpos($key, $keyStart) === 0)
+                unset($array[$key]);
+        }
+        return $array;
+    }
+    function array_rename_keys_starts($array, $keyStart)
+    {
+        $allKeys = array_keys($array);
+        $keyStartLen = strlen($keyStart);
+        foreach($allKeys as $key)
+        {
+            if(strpos($key, $keyStart) === 0)
+            {
+                $value = $array[$key];
+                unset($array[$key]);
+                $newKey = substr($key, $keyStartLen);
+                $array[$newKey] = $value;
+            }
+        }
+        return $array;
+    }
 ?>
