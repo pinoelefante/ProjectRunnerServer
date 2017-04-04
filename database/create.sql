@@ -25,7 +25,7 @@ CREATE TABLE IF NOT EXISTS `activities` (
   `meetingPointLatitude` float DEFAULT NULL,
   `meetingPointAddress` float DEFAULT NULL,
   `guestUsers` int(11) NOT NULL DEFAULT '0' COMMENT 'users without account',
-  `requiredPlayers` int(11) NOT NULL DEFAULT '1',
+  `maxPlayers` int(11) NOT NULL DEFAULT '1' COMMENT 'must be equals or greater than 1 + guestUsers',
   `status` int(11) NOT NULL DEFAULT '0' COMMENT '0 - pending, 1 - started, 2 - ended, -1 cancelled, -2 deleted',
   `sport` int(11) NOT NULL DEFAULT '1' COMMENT '1 - running, 2 - football, 3 bicycle, 4 - tennis',
   `fee` float NOT NULL,
