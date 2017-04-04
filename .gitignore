@@ -1,0 +1,4 @@
+.vscode/
+excel/
+*.xlsx
+debug.log
