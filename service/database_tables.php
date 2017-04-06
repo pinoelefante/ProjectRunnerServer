@@ -47,4 +47,12 @@
     define("DB_BICYCLE_ID", "id_activity");
     define("DB_BICYCLE_DISTANCE", "distance");
     define("DB_BICYCLE_TRAVELED", "traveled");
+
+    define ("DB_FRIEND_TABLE", "users_friend");
+    define ("DB_FRIEND_USER", "user_id");
+    define ("DB_FRIEND_FRIEND", "friend_id");
+
+    define ("DB_FRIEND_REQUEST_TABLE", "users_friend_request");
+    define ("DB_FRIEND_REQUEST_USER", "user_id");
+    define ("DB_FRIEND_REQUEST_FRIEND", "friend_id");
 ?>

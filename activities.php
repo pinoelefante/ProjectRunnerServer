@@ -46,16 +46,19 @@
             $idActivity = getParameter(DB_ACTIVITIES_ID,true);
             $responseCode = deleteActivity($idActivity) ? StatusCodes::OK : StatusCodes::FAIL;
             break;
-        case "ModifyActivity":
+        case "ModifyActivityField":
 
             break;
-        case "ListMyActivities":
+        case "MyActivitiesList":
             $status = getParameter(DB_ACTIVITIES_STATUS);
             $sport = getParameter(DB_ACTIVITIES_SPORT);
             //$orderBy = getParameter("orderBy");
             //$orderDirection = getParameter("order", false, 4);
             $responseContent = getMyActivities($status, $sport/*,$orderBy,$orderDirection*/);
             $responseCode = StatusCodes::OK;
+            break;
+        case "SearchActivities":
+
             break;
         default:
             $responseCode = StatusCodes::METODO_ASSENTE;
@@ -129,41 +132,15 @@
     }
     function getActivity($activityId)
     {
-        $query = "SELECT ".DB_ACTIVITIES_ID.",".DB_ACTIVITIES_CREATEDBY.",".DB_ACTIVITIES_STARTTIME.",".DB_ACTIVITIES_MPLONG.",".DB_ACTIVITIES_MPLAT.",".DB_ACTIVITIES_MPADDR.",".DB_ACTIVITIES_MAXPLAYERS.",".DB_ACTIVITIES_STATUS.",".DB_ACTIVITIES_SPORT.",".DB_ACTIVITIES_FEE.",".DB_ACTIVITIES_FEEDBACK.",".DB_ACTIVITIES_GUESTUSERS.", (SELECT COUNT(*) FROM ".DB_ACTIVITIES_JOINS_TABLE." WHERE ".DB_ACTIVITIES_JOINS_ACTIVITY." = ?) as joinedPlayers FROM ".DB_ACTIVITIES_TABLE." WHERE ".DB_ACTIVITIES_ID." = ?";
-        $res = dbSelect($query,"ii",array($activityId,$activityId), true);
-        //$players = 1 + $res[DB_ACTIVITIES_GUESTUSERS] + $res["joinedPlayers"];
-        //$res["totalPlayers"] = $players;
-        switch($res[DB_ACTIVITIES_SPORT])
-        {
-            case Sports::RUNNING:
-                return array_merge($res, getRunning($activityId));
-            case Sports::FOOTBALL:
-                return array_merge($res, getFootball($activityId));
-            case Sports::BICYCLE:
-                return array_merge($res, getBicycle($activityId));
-            case Sports::TENNIS:
-                return array_merge($res, getTennis($activityId));
-        }
-    }
-    function getFootball($activityId)
-    {
-        $query = "SELECT ".DB_FOOTBALL_PLAYERSPERTEAM." FROM ".DB_FOOTBALL_TABLE." WHERE ".DB_FOOTBALL_ID." = ?";
-        return dbSelect($query,"i", array($activityId));
-    }
-    function getRunning($activityId)
-    {
-        $query = "SELECT ".DB_RUNNING_DISTANCE.",".DB_RUNNING_TRAVELED.",".DB_RUNNING_FITNESS." FROM ".DB_RUNNING_TABLE." WHERE ".DB_RUNNING_ID." = ?";
-        return dbSelect($query, "i", array($activityId), true);
-    }
-    function getTennis($activityId)
-    {
-        $query = "SELECT ".DB_TENNIS_DOUBLE." FROM ".DB_TENNIS_TABLE." WHERE ".DB_TENNIS_ID." = ?";
-        return dbSelect($query,"i", array($activityId), true);
-    }
-    function getBicycle($activityId)
-    {
-        $query = "SELECT ".DB_BICYCLE_DISTANCE.",".DB_BICYCLE_TRAVELED." FROM ".DB_BICYCLE_TABLE." WHERE ".DB_BICYCLE_ID." = ?";
-        return dbSelect($query, "i", array($activityId), true);
+        $query = "SELECT act.*,bike.".DB_BICYCLE_DISTANCE." as bicycle_".DB_BICYCLE_DISTANCE.", bike.".DB_BICYCLE_TRAVELED." as bicycle_".DB_BICYCLE_TRAVELED.", run.".DB_RUNNING_DISTANCE." as running_".DB_RUNNING_DISTANCE.", run.".DB_RUNNING_TRAVELED." as running_".DB_RUNNING_TRAVELED.", run.".DB_RUNNING_FITNESS." as running_".DB_RUNNING_FITNESS.", foot.".DB_FOOTBALL_PLAYERSPERTEAM." as football_".DB_FOOTBALL_PLAYERSPERTEAM.", ten.".DB_TENNIS_DOUBLE." as tennis_".DB_TENNIS_DOUBLE.",(SELECT COUNT(*) FROM ".DB_ACTIVITIES_JOINS_TABLE." WHERE ".DB_ACTIVITIES_JOINS_ACTIVITY." = act.".DB_ACTIVITIES_ID.") as joinedPlayers FROM ".DB_ACTIVITIES_TABLE." AS act".
+            " LEFT JOIN ".DB_RUNNING_TABLE." AS run ON (act.".DB_ACTIVITIES_SPORT." = ".Sports::RUNNING." AND act.".DB_ACTIVITIES_ID." = run.".DB_RUNNING_ID.")".
+            " LEFT JOIN ".DB_FOOTBALL_TABLE." AS foot ON (act.".DB_ACTIVITIES_SPORT." = ".Sports::FOOTBALL." AND act.".DB_ACTIVITIES_ID." = foot.".DB_FOOTBALL_ID.")".
+            " LEFT JOIN ".DB_BICYCLE_TABLE." AS bike ON (act.".DB_ACTIVITIES_SPORT." = ".Sports::BICYCLE." AND act.".DB_ACTIVITIES_ID." = bike.".DB_BICYCLE_ID.")".
+            " LEFT JOIN ".DB_TENNIS_TABLE." AS ten ON (act.".DB_ACTIVITIES_SPORT." = ".Sports::TENNIS." AND act.".DB_ACTIVITIES_ID." = ten.".DB_TENNIS_ID.")".
+            " WHERE act.".DB_ACTIVITIES_ID." = ?";
+        $activity = dbSelect($query, "i", array($activityId), true);
+        $activity = normalizeActivity($activity);
+        return $activity;
     }
     function joinActivity($activityId)
     {
@@ -210,7 +187,7 @@
             " WHERE (act.".DB_ACTIVITIES_CREATEDBY." = ? OR act.".DB_ACTIVITIES_ID." IN (SELECT ".DB_ACTIVITIES_JOINS_ACTIVITY." FROM ".DB_ACTIVITIES_JOINS_TABLE." WHERE ".DB_ACTIVITIES_JOINS_USER." = ?))".
             ($status !== NULL ? " AND act.".DB_ACTIVITIES_STATUS." = ?" : "").
             ($sport !== NULL ? " AND act.".DB_ACTIVITIES_SPORT." = ?" : "").
-            ($orderBy !==NULL && $order!==NULL ? " ORDER BY act.$orderBy $order" : "ORDER BY act.".DB_ACTIVITIES_STARTTIME." ASC");
+            ($orderBy !==NULL && $order!==NULL ? " ORDER BY act.$orderBy $order" : " ORDER BY act.".DB_ACTIVITIES_STARTTIME." ASC");
         $paramTypes = "ii";
         $parameters = array($userId,$userId);
         if($status!==NULL)
@@ -232,35 +209,40 @@
         $normalized = array();
         foreach($activities as $activity)
         {
-            switch($activity[DB_ACTIVITIES_SPORT])
-            {
-                case Sports::RUNNING:
-                    $activity = array_remove_keys_starts($activity, "bicycle_");
-                    $activity = array_remove_keys_starts($activity, "football_");
-                    $activity = array_remove_keys_starts($activity, "tennis_");
-                    $activity = array_rename_keys_starts($activity, "running_");
-                    break;
-                case Sports::FOOTBALL:
-                    $activity = array_remove_keys_starts($activity, "bicycle_");
-                    $activity = array_remove_keys_starts($activity, "tennis_");
-                    $activity = array_remove_keys_starts($activity, "running_");
-                    $activity = array_rename_keys_starts($activity, "football_");
-                    break;
-                case Sports::BICYCLE:
-                    $activity = array_remove_keys_starts($activity, "football_");
-                    $activity = array_remove_keys_starts($activity, "tennis_");
-                    $activity = array_remove_keys_starts($activity, "running_");
-                    $activity = array_rename_keys_starts($activity, "bicycle_");
-                    break;
-                case Sports::TENNIS:
-                    $activity = array_remove_keys_starts($activity, "bicycle_");
-                    $activity = array_remove_keys_starts($activity, "football_");
-                    $activity = array_remove_keys_starts($activity, "running_");
-                    $activity = array_rename_keys_starts($activity, "tennis_");
-                    break;
-            }
+            $activity = normalizeActivity($activity);
             array_push($normalized, $activity);
         }
         return $normalized;
+    }
+    function normalizeActivity($activity)
+    {
+        switch($activity[DB_ACTIVITIES_SPORT])
+        {
+            case Sports::RUNNING:
+                $activity = array_remove_keys_starts($activity, "bicycle_");
+                $activity = array_remove_keys_starts($activity, "football_");
+                $activity = array_remove_keys_starts($activity, "tennis_");
+                $activity = array_rename_keys_starts($activity, "running_");
+                break;
+            case Sports::FOOTBALL:
+                $activity = array_remove_keys_starts($activity, "bicycle_");
+                $activity = array_remove_keys_starts($activity, "tennis_");
+                $activity = array_remove_keys_starts($activity, "running_");
+                $activity = array_rename_keys_starts($activity, "football_");
+                break;
+            case Sports::BICYCLE:
+                $activity = array_remove_keys_starts($activity, "football_");
+                $activity = array_remove_keys_starts($activity, "tennis_");
+                $activity = array_remove_keys_starts($activity, "running_");
+                $activity = array_rename_keys_starts($activity, "bicycle_");
+                break;
+            case Sports::TENNIS:
+                $activity = array_remove_keys_starts($activity, "bicycle_");
+                $activity = array_remove_keys_starts($activity, "football_");
+                $activity = array_remove_keys_starts($activity, "running_");
+                $activity = array_rename_keys_starts($activity, "tennis_");
+                break;
+        }
+        return $activity;
     }
 ?>

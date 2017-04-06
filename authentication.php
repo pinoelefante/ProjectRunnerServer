@@ -34,7 +34,7 @@
 			closeSession();
 			$responseCode = StatusCodes::OK;
 			break;
-		case "Modify":
+		case "ModifyField":
 			$field = getParameter("field", true);
 			$value = getParameter("newValue", true);
 			$responseCode = modifyField($field, $value);

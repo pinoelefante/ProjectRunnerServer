@@ -35,7 +35,7 @@
     function GetArrayToString($array)
     {
         $content = "";
-        if(!empty($myarray))
+        if(!empty($array))
         {
             foreach($array as $key=>$value)
                 $content = $content."$key = $value\n";
