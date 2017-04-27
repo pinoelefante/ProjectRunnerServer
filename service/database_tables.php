@@ -19,9 +19,7 @@
     define("DB_ACTIVITIES_ID", "id");
     define("DB_ACTIVITIES_CREATEDBY", "createdBy");
     define("DB_ACTIVITIES_STARTTIME", "startTime");
-    define("DB_ACTIVITIES_MPLONG", "meetingPointLongitude");
-    define("DB_ACTIVITIES_MPLAT", "meetingPointLatitude");
-    define("DB_ACTIVITIES_MPADDR", "meetingPointAddress");
+    define("DB_ACTIVITIES_MEETINGPOINT", "meetingPoint");
     define("DB_ACTIVITIES_GUESTUSERS", "guestUsers");
     define("DB_ACTIVITIES_MAXPLAYERS", "maxPlayers");
     define("DB_ACTIVITIES_STATUS", "status");
@@ -55,4 +53,18 @@
     define ("DB_FRIEND_REQUEST_TABLE", "users_friend_request");
     define ("DB_FRIEND_REQUEST_USER", "user_id");
     define ("DB_FRIEND_REQUEST_FRIEND", "friend_id");
+
+    define("DB_ADDRESS_TABLE", "addresses");
+    define("DB_ADDRESS_ID", "id");
+    define("DB_ADDRESS_NAME", "name");
+    define("DB_ADDRESS_LATITUDE", "latitude");
+    define("DB_ADDRESS_LONGITUDE", "longitude");
+    define("DB_ADDRESS_ROUTE", "route");
+    define("DB_ADDRESS_STREETNUMBER", "street_number");
+    define("DB_ADDRESS_CITY", "city");
+    define("DB_ADDRESS_REGION", "region");
+    define("DB_ADDRESS_PROVINCE", "province");
+    define("DB_ADDRESS_POSTALCODE", "postal_code");
+    define("DB_ADDRESS_COUNTRY", "country");
+    define("DB_ADDRESS_CREATEDBY", "createdBy");
 ?>

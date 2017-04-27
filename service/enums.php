@@ -40,6 +40,11 @@
         const CANCELLED = -1;
         const DELETED = -2;
     }
+    abstract class MapDistance extends BasicEnum
+    {
+        const METERS = 1;
+        const KILOMETERS = 1000;
+    }
 
     abstract class BasicEnum {
         private static $constCacheArray = NULL;
