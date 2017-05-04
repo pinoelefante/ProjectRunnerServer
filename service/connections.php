@@ -69,16 +69,18 @@
             sendEmailAdmin("[PostApp] Richiesta fallita",$corpoMail);
         }
     }
-    function sendPOSTRequest($url, $data)
+    function sendHTTPRequest($url, $data = NULL, $method = "POST")
     {
         //$url = 'http://server.com/path';
         //$data = array('key1' => 'value1', 'key2' => 'value2');
 
         // use key 'http' even if you send the request to https://...
+        if($data == NULL)
+            $data = array();
         $options = array(
             'http' => array(
                 'header'  => "Content-type: application/x-www-form-urlencoded\r\n",
-                'method'  => 'POST',
+                'method'  => $method,
                 'content' => http_build_query($data)
             )
         );
@@ -86,10 +88,10 @@
         $result = file_get_contents($url, false, $context);
         if ($result === FALSE) 
         { 
-            /* Handle error */ 
+            /* Handle error */
+            return NULL;
         }
-
-        var_dump($result);
+        return $result;
     }
     function checkUserAgent()
     {
@@ -115,6 +117,6 @@
     }
     function sendEmailAdmin($oggetto, $corpo)
     {
-        //mail(ADMIN_EMAIL, $oggetto, $corpo);
+        sendEmail(ADMIN_EMAIL, $oggetto, $corpo);
     }
 ?>

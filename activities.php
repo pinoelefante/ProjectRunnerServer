@@ -8,6 +8,7 @@
     require_once("./service/enums.php");
     require_once("./service/functions.php");
     require_once("./service/logger.php");
+    require_once("./service/maps.php");
 	require_once("./service/push_notifications.php");
 	require_once("./service/session.php");
     
@@ -60,10 +61,34 @@
             $sport = getParameter(DB_ACTIVITIES_SPORT);
             $responseContent = searchActivities($status, $sport);
             break;
-        case "AddAddress":
-        case "RemoveAddress":
         case "ListAddress":
-        case "GetAddress":
+            $responseCode = StatusCodes::OK;
+            $responseContent = listMyAddresses();
+            break;
+        case "AddAddress":
+            $name = getParameter(DB_ADDRESS_NAME, true);
+            $latitude = getParameter(DB_ADDRESS_LATITUDE, true);
+            $longitude = getParameter(DB_ADDRESS_LONGITUDE, true);
+            $street = getParameter(DB_ADDRESS_ROUTE);
+            $number = getParameter(DB_ADDRESS_STREETNUMBER);
+            $city = getParameter(DB_ADDRESS_CITY);
+            $region = getParameter(DB_ADDRESS_REGION);
+            $province = getParameter(DB_ADDRESS_PROVINCE);
+            $postalCode = getParameter(DB_ADDRESS_POSTALCODE);
+            $country = getParameter(DB_ADDRESS_COUNTRY);
+            $responseCode = addAddress($name, $latitude, $longitude, $street, $number, $city, $region, $province, $postalCode, $country) ? StatusCodes::OK : StatusCodes::FAIL;
+            break;
+        case "AddAddressPoint":
+            $name = getParameter(DB_ADDRESS_NAME, true);
+            $latitude = getParameter(DB_ADDRESS_LATITUDE, true);
+            $longitude = getParameter(DB_ADDRESS_LONGITUDE, true);
+            $responseCode = addAddressFromPoint($name, $latitude, $longitude) ? StatusCodes::OK : StatusCodes::FAIL;
+            break;
+        case "ReloadAddressInfoFromGoogleMaps":
+            $locationId = getParameter(DB_ADDRESS_ID);
+            $responseCode = ReloadAddressInfoFromGoogleMaps($locationId);
+            break;
+        case "RemoveAddress":
         default:
             $responseCode = StatusCodes::METODO_ASSENTE;
             break;
@@ -262,5 +287,58 @@
                 break;
         }
         return $activity;
+    }
+    function listMyAddresses()
+    {
+        $userId = getLoginParameterFromSession();
+        $query = "SELECT ".DB_ADDRESS_ID.",".DB_ADDRESS_NAME.",".DB_ADDRESS_LATITUDE.",".DB_ADDRESS_LONGITUDE.",".DB_ADDRESS_ROUTE.",".DB_ADDRESS_STREETNUMBER.",".DB_ADDRESS_CITY.",".DB_ADDRESS_REGION.",".DB_ADDRESS_PROVINCE.",".DB_ADDRESS_POSTALCODE.",".DB_ADDRESS_COUNTRY." FROM ".DB_ADDRESS_TABLE." WHERE ".DB_ADDRESS_CREATEDBY." = ? ORDER BY ".DB_ADDRESS_NAME." ASC";
+        return dbSelect($query, "i", array($userId));
+    }
+    function addAddress($name, $latitude, $longitude, $street = NULL, $streetNo = NULL, $city = NULL, $region = NULL, $province = NULL, $postalCode = NULL, $country = NULL)
+    {
+        $userId = getLoginParameterFromSession();
+        $query = "INSERT INTO ".DB_ADDRESS_TABLE." (".DB_ADDRESS_NAME.",".DB_ADDRESS_LATITUDE.",".DB_ADDRESS_LONGITUDE.",".DB_ADDRESS_ROUTE.",".DB_ADDRESS_STREETNUMBER.",".DB_ADDRESS_CITY.",".DB_ADDRESS_REGION.",".DB_ADDRESS_PROVINCE.",".DB_ADDRESS_POSTALCODE.",".DB_ADDRESS_COUNTRY.",".DB_ADDRESS_CREATEDBY.") VALUES (?,?,?,?,?,?,?,?,?,?,?)";
+        return dbUpdate($query, "sddsisssssi", array($name,$latitude,$longitude,$street,$streetNo,$city,$region,$province,$postalCode,$country,$userId));
+    }
+    function addAddressFromPoint($name, $latitude, $longitude)
+    {
+        if(!isLogged())
+            return false;
+        $address = GetAddressFromLatLong($latitude, $longitude);
+        if($address != NULL)
+        {
+            $streetNo = array_get_value($address,"street_number");
+            $street = array_get_value($address,"route");
+            $city = array_get_value($address,"city");
+            $prov = array_get_value($address,"province");
+            $region = array_get_value($address,"region");
+            $country = array_get_value($address,"country");
+            $zipCode = array_get_value($address,"postal_code");
+            return addAddress($name, $address["latitude"],$address["longitude"],$street, $streetNo, $city,$region, $prov,$zipCode,$country);
+        }
+        return addAddress($name,$latitude,$longitude);
+    }
+    function ReloadAddressInfoFromGoogleMaps($locationId)
+    {
+        $userId = getLoginParameterFromSession();
+        $query = "SELECT ".DB_ADDRESS_LATITUDE.",".DB_ADDRESS_LONGITUDE." FROM ".DB_ADDRESS_TABLE." WHERE ".DB_ADDRESS_CREATEDBY." = ? AND ".DB_ADDRESS_ID." = ?";
+        $result = dbSelect($query, "ii", array($userId, $locationId), true);
+        if(count($result) > 0)
+        {
+            $address = GetAddressFromLatLong($result["latitude"], $result["longitude"]);
+            if($address != NULL)
+            {
+                $streetNo = array_get_value($address,"street_number");
+                $street = array_get_value($address,"route");
+                $city = array_get_value($address,"city");
+                $prov = array_get_value($address,"province");
+                $region = array_get_value($address,"region");
+                $country = array_get_value($address,"country");
+                $zipCode = array_get_value($address,"postal_code");
+                $query = "UPDATE ".DB_ADDRESS_TABLE." SET ".DB_ADDRESS_ROUTE." = ?, ".DB_ADDRESS_STREETNUMBER." = ?, ".DB_ADDRESS_CITY." = ?, ".DB_ADDRESS_REGION." = ?, ".DB_ADDRESS_PROVINCE." = ?, ".DB_ADDRESS_POSTALCODE." = ?, ".DB_ADDRESS_COUNTRY." = ? WHERE ".DB_ADDRESS_ID." = ? AND ".DB_ADDRESS_CREATEDBY." = ?";
+                return dbUpdate($query,"sisssssii", array($street,$streetNo,$city,$region,$prov,$zipCode,$country,$locationId,$userId));
+            }
+        }
+        return false;
     }
 ?>

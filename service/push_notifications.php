@@ -88,19 +88,19 @@
     
     function GetAllDevices()
     {
-        $query = "SELECT id_utente as user,token,deviceOS FROM push_devices";
+        $query = "SELECT id_user as user,token,deviceOS FROM push_devices";
         return dbSelect($query);
     }
     function RegistraDevice($token, $device, $deviceId)
 	{
 		$loginParameter = getLoginParameterFromSession();
-		$query = "INSERT INTO push_devices (id_utente,token,deviceOS,deviceId) VALUES (?,?,?,?)";
+		$query = "INSERT INTO push_devices (id_user,token,deviceOS,deviceId) VALUES (?,?,?,?)";
 		return dbUpdate($query,"isis",array($loginParameter,$token,$device,$deviceId)) ? StatusCodes::OK : StatusCodes::FAIL;
 	}
     function UnRegistraDevice($token, $device,$deviceId)
 	{
 		$loginParameter = getLoginParameterFromSession();
-		$query = "DELETE FROM push_devices WHERE id_utente=? AND token=? AND deviceOS=? AND deviceId = ?";
+		$query = "DELETE FROM push_devices WHERE id_user=? AND token=? AND deviceOS=? AND deviceId = ?";
 		return dbUpdate($query,"isis",array($loginParameter,$token,$device,$deviceId), DatabaseReturns::RETURN_AFFECTED_ROWS) ? StatusCodes::OK : StatusCodes::FAIL;
 	}
 ?>

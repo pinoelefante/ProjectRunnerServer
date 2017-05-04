@@ -169,4 +169,10 @@
         }
         return $array;
     }
+    function array_get_value($array, $key, $default = NULL)
+    {
+        if(isset($array[$key]))
+            return $array[$key];
+        return $default;
+    }
 ?>

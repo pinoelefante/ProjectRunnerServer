@@ -30,4 +30,7 @@
 
     /* Push notifications options */
     define('GOOGLE_API_KEY','google-api-key-push-notification-service');
+
+    /* Maps service */
+    define("GOOGLEMAPS_API_KEY", "AIzaSyDVPJKCj8wPi50f1x3BV_rUrOKRaDI6ZXM");
 ?>
