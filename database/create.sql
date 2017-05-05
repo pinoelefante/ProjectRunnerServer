@@ -92,14 +92,17 @@ CREATE TABLE IF NOT EXISTS `addresses` (
   `name` varchar(50) NOT NULL,
   `latitude` float NOT NULL,
   `longitude` float NOT NULL,
-  `route` varchar(48) NOT NULL,
-  `street_number` int(11) NOT NULL,
-  `city` varchar(50) NOT NULL,
-  `region` varchar(50) NOT NULL,
-  `province` varchar(50) NOT NULL,
-  `postal_code` varchar(50) NOT NULL,
-  `country` varchar(50) NOT NULL,
-  PRIMARY KEY (`id`)
+  `route` varchar(48) DEFAULT NULL,
+  `street_number` int(11) DEFAULT NULL,
+  `city` varchar(50) DEFAULT NULL,
+  `region` varchar(50) DEFAULT NULL,
+  `province` varchar(50) DEFAULT NULL,
+  `postal_code` varchar(50) DEFAULT NULL,
+  `country` varchar(50) DEFAULT NULL,
+  `createdBy` int(11) NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `FK_addresses_users` (`createdBy`),
+  CONSTRAINT `FK_addresses_users` FOREIGN KEY (`createdBy`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- L’esportazione dei dati non era selezionata.
