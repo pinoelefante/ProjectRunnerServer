@@ -100,6 +100,7 @@ CREATE TABLE IF NOT EXISTS `addresses` (
   `postal_code` varchar(50) DEFAULT NULL,
   `country` varchar(50) DEFAULT NULL,
   `createdBy` int(11) NOT NULL,
+  `active` bit(1) NOT NULL DEFAULT b'1',
   PRIMARY KEY (`id`),
   KEY `FK_addresses_users` (`createdBy`),
   CONSTRAINT `FK_addresses_users` FOREIGN KEY (`createdBy`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
@@ -123,6 +124,15 @@ CREATE TABLE IF NOT EXISTS `log_response` (
   `response` text,
   PRIMARY KEY (`request_id`),
   CONSTRAINT `FK_log_response_log_request` FOREIGN KEY (`request_id`) REFERENCES `log_request` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+CREATE TABLE IF NOT EXISTS `push_devices` (
+  `id_user` int(11) unsigned NOT NULL,
+  `token` text NOT NULL,
+  `deviceOS` tinyint(3) unsigned NOT NULL COMMENT '1 android; 2 ios; 3 windows 10;',
+  `deviceId` varchar(80) NOT NULL,
+  KEY `FK_push_devices_user` (`id_user`),
+  CONSTRAINT `FK_push_devices_user` FOREIGN KEY (`id_user`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- L’esportazione dei dati non era selezionata.

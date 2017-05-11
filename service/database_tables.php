@@ -67,4 +67,5 @@
     define("DB_ADDRESS_POSTALCODE", "postal_code");
     define("DB_ADDRESS_COUNTRY", "country");
     define("DB_ADDRESS_CREATEDBY", "createdBy");
+    define("DB_ADDRESS_ACTIVE", "active");
 ?>

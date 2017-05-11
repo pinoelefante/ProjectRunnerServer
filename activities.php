@@ -294,7 +294,7 @@
     function listMyAddresses()
     {
         $userId = getLoginParameterFromSession();
-        $query = "SELECT ".DB_ADDRESS_ID.",".DB_ADDRESS_NAME.",".DB_ADDRESS_LATITUDE.",".DB_ADDRESS_LONGITUDE.",".DB_ADDRESS_ROUTE.",".DB_ADDRESS_STREETNUMBER.",".DB_ADDRESS_CITY.",".DB_ADDRESS_REGION.",".DB_ADDRESS_PROVINCE.",".DB_ADDRESS_POSTALCODE.",".DB_ADDRESS_COUNTRY." FROM ".DB_ADDRESS_TABLE." WHERE ".DB_ADDRESS_CREATEDBY." = ? ORDER BY ".DB_ADDRESS_NAME." ASC";
+        $query = "SELECT ".DB_ADDRESS_ID.",".DB_ADDRESS_NAME.",".DB_ADDRESS_LATITUDE.",".DB_ADDRESS_LONGITUDE.",".DB_ADDRESS_ROUTE.",".DB_ADDRESS_STREETNUMBER.",".DB_ADDRESS_CITY.",".DB_ADDRESS_REGION.",".DB_ADDRESS_PROVINCE.",".DB_ADDRESS_POSTALCODE.",".DB_ADDRESS_COUNTRY." FROM ".DB_ADDRESS_TABLE." WHERE ".DB_ADDRESS_CREATEDBY." = ? AND ".DB_ADDRESS_ACTIVE." = 1 ORDER BY ".DB_ADDRESS_NAME." ASC";
         return dbSelect($query, "i", array($userId));
     }
     function addAddress($name, $latitude, $longitude, $street = NULL, $streetNo = NULL, $city = NULL, $region = NULL, $province = NULL, $postalCode = NULL, $country = NULL)
@@ -324,7 +324,7 @@
     function DeleteAddress($locationId)
     {
         $userId = getLoginParameterFromSession();
-        $query = "DELETE FROM ".DB_ADDRESS_TABLE." WHERE ".DB_ADDRESS_ID." = ? AND ".DB_ADDRESS_CREATEDBY." = ?";
+        $query = "UPDATE ".DB_ADDRESS_TABLE."SET ".DB_ADDRESS_ACTIVE." = 0 WHERE ".DB_ADDRESS_ID." = ? AND ".DB_ADDRESS_CREATEDBY." = ?";
         $res = dbUpdate($query, "ii", array($locationId, $userId), DatabaseReturns::RETURN_AFFECTED_ROWS);
         return $res > 0;
     }
