@@ -85,10 +85,13 @@
             $responseCode = addAddressFromPoint($name, $latitude, $longitude) ? StatusCodes::OK : StatusCodes::FAIL;
             break;
         case "ReloadAddressInfoFromGoogleMaps":
-            $locationId = getParameter(DB_ADDRESS_ID);
-            $responseCode = ReloadAddressInfoFromGoogleMaps($locationId);
+            $locationId = getParameter(DB_ADDRESS_ID, true);
+            $responseCode = ReloadAddressInfoFromGoogleMaps($locationId) ? StatusCodes::OK : StatusCodes::FAIL;
             break;
         case "RemoveAddress":
+            $locationId = getParameter(DB_ADDRESS_ID, true);
+            $responseCode = DeleteAddress($locationId) ? StatusCodes::OK : StatusCodes::FAIL;
+            break;
         default:
             $responseCode = StatusCodes::METODO_ASSENTE;
             break;
@@ -98,8 +101,8 @@
     function createActivity($startTime, $meetingPoint, $maxPlayers, $guestUsers, $sport, $fee, $feedback, $sportDetails)
     {
         $userId = getLoginParameterFromSession();
-        $query = "INSERT INTO ".DB_ACTIVITIES_TABLE." (".DB_ACTIVITIES_CREATEDBY.",".DB_ACTIVITIES_STARTTIME.",".DB_ACTIVITIES_MEETINGPOINT.",".DB_ACTIVITIES_SPORT.",".DB_ACTIVITIES_FEE.",".DB_ACTIVITIES_FEEDBACK.",".DB_ACTIVITIES_MAXPLAYERS.",".DB_ACTIVITIES_GUESTUSERS.") VALUES (?,?,?,?,?,?,?,?,?,?)";
-        $activityId = dbUpdate($query, "isddsidiii", array($userId,$startTime,$meetingPoint, $sport, $fee, $feedback,$maxPlayers, $guestUsers), DatabaseReturns::RETURN_INSERT_ID);
+        $query = "INSERT INTO ".DB_ACTIVITIES_TABLE." (".DB_ACTIVITIES_CREATEDBY.",".DB_ACTIVITIES_STARTTIME.",".DB_ACTIVITIES_MEETINGPOINT.",".DB_ACTIVITIES_SPORT.",".DB_ACTIVITIES_FEE.",".DB_ACTIVITIES_FEEDBACK.",".DB_ACTIVITIES_MAXPLAYERS.",".DB_ACTIVITIES_GUESTUSERS.") VALUES (?,?,?,?,?,?,?,?)";
+        $activityId = dbUpdate($query, "isiidiii", array($userId,$startTime,$meetingPoint, $sport, $fee, $feedback,$maxPlayers, $guestUsers), DatabaseReturns::RETURN_INSERT_ID);
 
         if($activityId > 0)
         {
@@ -317,6 +320,13 @@
             return addAddress($name, $address["latitude"],$address["longitude"],$street, $streetNo, $city,$region, $prov,$zipCode,$country);
         }
         return addAddress($name,$latitude,$longitude);
+    }
+    function DeleteAddress($locationId)
+    {
+        $userId = getLoginParameterFromSession();
+        $query = "DELETE FROM ".DB_ADDRESS_TABLE." WHERE ".DB_ADDRESS_ID." = ? AND ".DB_ADDRESS_CREATEDBY." = ?";
+        $res = dbUpdate($query, "ii", array($locationId, $userId), DatabaseReturns::RETURN_AFFECTED_ROWS);
+        return $res > 0;
     }
     function ReloadAddressInfoFromGoogleMaps($locationId)
     {
