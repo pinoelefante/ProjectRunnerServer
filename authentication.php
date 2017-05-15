@@ -47,6 +47,12 @@
 			$responseContent = getProfileInfo();
 			$responseCode = StatusCodes::OK;
 			break;
+		case "RequestMyUserId":
+			if(isLogged())
+			{
+				$responseCode = StatusCodes::OK;
+				$responseContent = getLoginParameterFromSession();
+			}
 		case "RecoverPassword":
 			break;
 		case "RegisterPush":

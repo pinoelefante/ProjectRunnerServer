@@ -3,6 +3,8 @@
     require_once("connections.php");
     require_once("enums.php");
     require_once("logger.php");
+    define("LATLONGRADIUSKM", 0.00899321606);
+
     //haversine function
     //$earthRadius default is in kilometers
     function GetDistanceFromLatLong($latitudeFrom, $longitudeFrom, $latitudeTo, $longitudeTo, $earthRadius = 6371)
