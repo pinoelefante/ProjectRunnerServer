@@ -29,6 +29,8 @@
 			$username = getParameter("username", true);
             $password = getParameter("password", true);
 			$responseCode = login($username, $password) ? StatusCodes::OK : StatusCodes::LOGIN_ERROR;
+			if($responseCode==StatusCodes::OK)
+				$responseContent = getLoginParameterFromSession();
 			break;
 		case "Logout":
 			closeSession();
@@ -47,12 +49,6 @@
 			$responseContent = getProfileInfo();
 			$responseCode = StatusCodes::OK;
 			break;
-		case "RequestMyUserId":
-			if(isLogged())
-			{
-				$responseCode = StatusCodes::OK;
-				$responseContent = getLoginParameterFromSession();
-			}
 		case "RecoverPassword":
 			break;
 		case "RegisterPush":
