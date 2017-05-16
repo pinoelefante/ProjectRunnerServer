@@ -27,6 +27,12 @@
     define("DB_ACTIVITIES_FEE", "fee");
     define("DB_ACTIVITIES_FEEDBACK", "requiredFeedback");
 
+    define("DB_ACTIVITIES_CHAT_TABLE", "activities_chat");
+    define("DB_ACTIVITIES_CHAT_ACTIVITY", "id_activity");
+    define("DB_ACTIVITIES_CHAT_USER", "id_user");
+    define("DB_ACTIVITIES_CHAT_MESSAGE", "message");
+    define("DB_ACTIVITIES_CHAT_TIMESTAMP", "timestamp");
+
     define("DB_FOOTBALL_TABLE", "activities_football");
     define("DB_FOOTBALL_ID", "id_activity");
     define("DB_FOOTBALL_PLAYERSPERTEAM", "playersPerTeam");

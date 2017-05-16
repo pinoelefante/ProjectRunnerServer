@@ -46,6 +46,19 @@ CREATE TABLE IF NOT EXISTS `activities_bicycle` (
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- L’esportazione dei dati non era selezionata.
+-- Dump della struttura di tabella projectrunners.activities_chat
+CREATE TABLE IF NOT EXISTS `activities_chat` (
+  `id_activity` int(11) NOT NULL,
+  `id_user` int(11) DEFAULT NULL,
+  `message` varchar(200) NOT NULL,
+  `timestamp` bigint(20) NOT NULL,
+  KEY `FK_activities_chat_activities` (`id_activity`),
+  KEY `FK_activities_chat_users` (`id_user`),
+  CONSTRAINT `FK_activities_chat_activities` FOREIGN KEY (`id_activity`) REFERENCES `activities` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `FK_activities_chat_users` FOREIGN KEY (`id_user`) REFERENCES `users` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+-- L’esportazione dei dati non era selezionata.
 -- Dump della struttura di tabella projectrunners.activities_football
 CREATE TABLE IF NOT EXISTS `activities_football` (
   `id_activity` int(11) NOT NULL,
@@ -126,8 +139,10 @@ CREATE TABLE IF NOT EXISTS `log_response` (
   CONSTRAINT `FK_log_response_log_request` FOREIGN KEY (`request_id`) REFERENCES `log_request` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
+-- L’esportazione dei dati non era selezionata.
+-- Dump della struttura di tabella projectrunners.push_devices
 CREATE TABLE IF NOT EXISTS `push_devices` (
-  `id_user` int(11) unsigned NOT NULL,
+  `id_user` int(11) NOT NULL,
   `token` text NOT NULL,
   `deviceOS` tinyint(3) unsigned NOT NULL COMMENT '1 android; 2 ios; 3 windows 10;',
   `deviceId` varchar(80) NOT NULL,

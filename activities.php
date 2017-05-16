@@ -92,6 +92,22 @@
             $locationId = getParameter(DB_ADDRESS_ID, true);
             $responseCode = DeleteAddress($locationId) ? StatusCodes::OK : StatusCodes::FAIL;
             break;
+        case "ListPeople":
+            $idActivity = getParameter(DB_ACTIVITIES_ID,true);
+            $responseContent = ListPeople($idActivity);
+            $responseCode = StatusCodes::OK;
+            break;
+        case "SendChatMessage":
+            $activityId = getParameter(DB_ACTIVITIES_CHAT_ACTIVITY, true);
+            $message = getParameter(DB_ACTIVITIES_CHAT_MESSAGE, true);
+            $responseCode = SendChatMessage($activityId, $message) ? StatusCodes::OK : StatusCodes::FAIL;
+            break;
+        case "ReadChatMessages":
+            $activityId = getParameter(DB_ACTIVITIES_CHAT_ACTIVITY, true);
+            $timestamp = getParameter(DB_ACTIVITIES_CHAT_TIMESTAMP);
+            $responseContent = ReadChatMessages($activityId, $timestamp);
+            $responseCode = StatusCodes::OK;
+            break;
         default:
             $responseCode = StatusCodes::METODO_ASSENTE;
             break;
@@ -350,5 +366,48 @@
             }
         }
         return false;
+    }
+    function ListPeople($activityId)
+    {
+        $userId = getLoginParameterFromSession();
+        $query = "SELECT ".DB_USERS_ID.", ".DB_USERS_USERNAME." FROM ".DB_USERS_TABLE." WHERE ".DB_USERS_ID." IN (SELECT ".DB_ACTIVITIES_CREATEDBY." FROM ".DB_ACTIVITIES_TABLE." WHERE ".DB_ACTIVITIES_ID." = ?) UNION SELECT ".DB_USERS_ID.", ".DB_USERS_USERNAME." FROM ".DB_USERS_TABLE." WHERE ".DB_USERS_ID." IN (SELECT ".DB_ACTIVITIES_JOINS_USER." FROM ".DB_ACTIVITIES_JOINS_TABLE." WHERE ".DB_ACTIVITIES_JOINS_ACTIVITY." = ?)";
+        $res = dbSelect($query, "ii", array($activityId,$activityId));
+        foreach($res as $item) //verifica che l'utente partecipa all'attività
+        {
+            if($item[DB_USERS_ID] == $userId)
+                return $res;
+        }
+        $res = array();
+        return $res;
+    }
+    function IsUserJoinedActivity($activityId, $userId)
+    {
+        //TODO
+        return true;
+    }
+    function SendChatMessage($activityId, $message)
+    {
+        $userId = getLoginParameterFromSession();
+        if(IsUserJoinedActivity($activityId, $userId))
+        {
+            $query = "INSERT INTO ".DB_ACTIVITIES_CHAT_TABLE." (".DB_ACTIVITIES_CHAT_ACTIVITY.",".DB_ACTIVITIES_CHAT_USER.",".DB_ACTIVITIES_CHAT_MESSAGE.",".DB_ACTIVITIES_CHAT_TIMESTAMP.") VALUES (?,?,?,?)";
+            $timestamp = $_SERVER['REQUEST_TIME_FLOAT']*1000;
+            if(dbUpdate($query, "iisi", array($activityId, $userId, $message,$timestamp)))
+            {
+                //TODO send push notification
+                return true;
+            }
+        }
+        return false;
+    }
+    function ReadChatMessages($activityId, $timestamp)
+    {
+        $userId = getLoginParameterFromSession();
+        if(IsUserJoinedActivity($activityId, $userId))
+        {
+            $query = "SELECT ".DB_ACTIVITIES_CHAT_USER.",".DB_ACTIVITIES_CHAT_MESSAGE.",".DB_ACTIVITIES_CHAT_TIMESTAMP." FROM ".DB_ACTIVITIES_CHAT_TABLE." WHERE ".DB_ACTIVITIES_CHAT_ACTIVITY." = ? AND ".DB_ACTIVITIES_CHAT_TIMESTAMP. " > ? ORDER BY ".DB_ACTIVITIES_CHAT_TIMESTAMP." ASC";
+            return dbSelect($query, "is", array($activityId, $timestamp));
+        }
+        return array();
     }
 ?>
