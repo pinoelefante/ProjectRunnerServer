@@ -247,24 +247,21 @@
             array_push($parameters, $sport);
         }
         $activities = dbSelect($query, $paramTypes, $parameters);
-        $activities = normalizeActivitiesArray($activities, $userId);
+        $activities = normalizeActivitiesArray($activities);
         return $activities;
     }
-    function normalizeActivitiesArray($activities, $userId = 0)
+    function normalizeActivitiesArray($activities)
     {
         $normalized = array();
         foreach($activities as $activity)
         {
-            $activity = normalizeActivity($activity, $userId);
+            $activity = normalizeActivity($activity);
             array_push($normalized, $activity);
         }
         return $normalized;
     }
-    function normalizeActivity($activity, $userId = 0)
+    function normalizeActivity($activity)
     {
-        if($userId > 0)
-            $activity["is_mine"] = $activity[DB_ACTIVITIES_CREATEDBY] == $userId ? 1 : 0;
-
         switch($activity[DB_ACTIVITIES_SPORT])
         {
             case Sports::RUNNING:
