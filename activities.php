@@ -248,7 +248,7 @@
             " LEFT JOIN ".DB_TENNIS_TABLE." AS ten ON (act.".DB_ACTIVITIES_SPORT." = 4 AND act.".DB_ACTIVITIES_ID." = ten.".DB_TENNIS_ID.")".
             " LEFT JOIN ".DB_ADDRESS_TABLE." AS addr ON act.".DB_ACTIVITIES_MEETINGPOINT." = addr.".DB_ADDRESS_ID.
             " WHERE (act.".DB_ACTIVITIES_CREATEDBY." = ? OR act.".DB_ACTIVITIES_ID." IN (SELECT ".DB_ACTIVITIES_JOINS_ACTIVITY." FROM ".DB_ACTIVITIES_JOINS_TABLE." WHERE ".DB_ACTIVITIES_JOINS_USER." = ?))".
-            ($status !== NULL ? " AND act.".DB_ACTIVITIES_STATUS." = ?" : "").
+            ($status !== NULL ? " AND act.".DB_ACTIVITIES_STATUS." = ?" : " AND act.".DB_ACTIVITIES_STATUS." >= 0").
             ($sport !== NULL ? " AND act.".DB_ACTIVITIES_SPORT." = ?" : "").
             ($orderBy !==NULL && $order!==NULL ? " ORDER BY act.$orderBy $order" : " ORDER BY act.".DB_ACTIVITIES_STARTTIME." ASC");
         $paramTypes = "ii";
