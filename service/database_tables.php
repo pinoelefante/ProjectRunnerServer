@@ -25,6 +25,7 @@
     define("DB_ACTIVITIES_STATUS", "status");
     define("DB_ACTIVITIES_SPORT", "sport");
     define("DB_ACTIVITIES_FEE", "fee");
+    define("DB_ACTIVITIES_CURRENCY", "currency");
     define("DB_ACTIVITIES_FEEDBACK", "requiredFeedback");
 
     define("DB_ACTIVITIES_CHAT_TABLE", "activities_chat");

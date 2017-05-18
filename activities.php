@@ -20,13 +20,14 @@
 		case "CreateActivity":
             $startTime = getParameter(DB_ACTIVITIES_STARTTIME, true);
             $maxPlayers = getParameter(DB_ACTIVITIES_MAXPLAYERS, true);
-            $guestUsers = getParameter(DB_ACTIVITIES_GUESTUSERS);
-            $fee = getParameter(DB_ACTIVITIES_FEE);
+            $guestUsers = getParameter(DB_ACTIVITIES_GUESTUSERS, true);
+            $fee = getParameter(DB_ACTIVITIES_FEE, true);
             $sport = getParameter(DB_ACTIVITIES_SPORT, true);
+            $currency = getParameter(DB_ACTIVITIES_CURRENCY, true);
             $feedback = getParameter(DB_ACTIVITIES_FEEDBACK);
             $sportDetails = getParametersStartingBy("sportDetails_");
             $mpPoint = getParameter(DB_ACTIVITIES_MEETINGPOINT, true);
-            $responseCode = createActivity($startTime, $mpPoint, $maxPlayers, $guestUsers, $sport, $fee, $feedback, $sportDetails);
+            $responseCode = createActivity($startTime, $mpPoint, $maxPlayers, $guestUsers, $sport, $fee,$currency, $feedback, $sportDetails);
             break;
         case "JoinActivity":
             $idActivity = getParameter(DB_ACTIVITIES_ID,true);
@@ -114,11 +115,11 @@
     }
     sendResponse($responseCode, $responseContent);
 
-    function createActivity($startTime, $meetingPoint, $maxPlayers, $guestUsers, $sport, $fee, $feedback, $sportDetails)
+    function createActivity($startTime, $meetingPoint, $maxPlayers, $guestUsers, $sport, $fee, $currency, $feedback, $sportDetails)
     {
         $userId = getLoginParameterFromSession();
-        $query = "INSERT INTO ".DB_ACTIVITIES_TABLE." (".DB_ACTIVITIES_CREATEDBY.",".DB_ACTIVITIES_STARTTIME.",".DB_ACTIVITIES_MEETINGPOINT.",".DB_ACTIVITIES_SPORT.",".DB_ACTIVITIES_FEE.",".DB_ACTIVITIES_FEEDBACK.",".DB_ACTIVITIES_MAXPLAYERS.",".DB_ACTIVITIES_GUESTUSERS.") VALUES (?,?,?,?,?,?,?,?)";
-        $activityId = dbUpdate($query, "isiidiii", array($userId,$startTime,$meetingPoint, $sport, $fee, $feedback,$maxPlayers, $guestUsers), DatabaseReturns::RETURN_INSERT_ID);
+        $query = "INSERT INTO ".DB_ACTIVITIES_TABLE." (".DB_ACTIVITIES_CREATEDBY.",".DB_ACTIVITIES_STARTTIME.",".DB_ACTIVITIES_MEETINGPOINT.",".DB_ACTIVITIES_SPORT.",".DB_ACTIVITIES_FEE.",".DB_ACTIVITIES_CURRENCY.",".DB_ACTIVITIES_FEEDBACK.",".DB_ACTIVITIES_MAXPLAYERS.",".DB_ACTIVITIES_GUESTUSERS.") VALUES (?,?,?,?,?,?,?,?,?)";
+        $activityId = dbUpdate($query, "isiidsiii", array($userId,$startTime,$meetingPoint, $sport, $fee, $feedback,$maxPlayers, $guestUsers), DatabaseReturns::RETURN_INSERT_ID);
 
         if($activityId > 0)
         {
@@ -228,7 +229,7 @@
     function deleteActivity($activityId)
     {
         $userId = getLoginParameterFromSession();
-        $query = "DELETE FROM ".DB_ACTIVITIES_TABLE." WHERE ".DB_ACTIVITIES_ID." = ? AND ".DB_ACTIVITIES_CREATEDBY." = ?";
+        $query = "UPDATE ".DB_ACTIVITIES_TABLE." SET ".DB_ACTIVITIES_STATUS." = ".ActivityStatus::DELETED." WHERE ".DB_ACTIVITIES_ID." = ? AND ".DB_ACTIVITIES_CREATEDBY." = ?";
         return dbUpdate($query, "ii", array($activityId,$userId), DatabaseReturns::RETURN_AFFECTED_ROWS) > 0 ? true : false;
     }
     function getMyActivities($status = NULL, $sport = NULL, $orderBy = DB_ACTIVITIES_STARTTIME, $order = "ASC")
