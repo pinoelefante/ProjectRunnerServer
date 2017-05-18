@@ -119,7 +119,7 @@
     {
         $userId = getLoginParameterFromSession();
         $query = "INSERT INTO ".DB_ACTIVITIES_TABLE." (".DB_ACTIVITIES_CREATEDBY.",".DB_ACTIVITIES_STARTTIME.",".DB_ACTIVITIES_MEETINGPOINT.",".DB_ACTIVITIES_SPORT.",".DB_ACTIVITIES_FEE.",".DB_ACTIVITIES_CURRENCY.",".DB_ACTIVITIES_FEEDBACK.",".DB_ACTIVITIES_MAXPLAYERS.",".DB_ACTIVITIES_GUESTUSERS.") VALUES (?,?,?,?,?,?,?,?,?)";
-        $activityId = dbUpdate($query, "isiidsiii", array($userId,$startTime,$meetingPoint, $sport, $fee, $feedback,$maxPlayers, $guestUsers), DatabaseReturns::RETURN_INSERT_ID);
+        $activityId = dbUpdate($query, "isiidsiii", array($userId,$startTime,$meetingPoint, $sport, $fee,$currency, $feedback,$maxPlayers, $guestUsers), DatabaseReturns::RETURN_INSERT_ID);
 
         if($activityId > 0)
         {
