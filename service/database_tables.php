@@ -27,6 +27,8 @@
     define("DB_ACTIVITIES_FEE", "fee");
     define("DB_ACTIVITIES_CURRENCY", "currency");
     define("DB_ACTIVITIES_FEEDBACK", "requiredFeedback");
+    define("DB_ACTIVITIES_ORGANIZERMODE", "isOrganizerMode");
+    define("DB_ACTIVITIES_PRIVATE", "isPrivate");
 
     define("DB_ACTIVITIES_CHAT_TABLE", "activities_chat");
     define("DB_ACTIVITIES_CHAT_ACTIVITY", "id_activity");

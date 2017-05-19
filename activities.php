@@ -46,6 +46,12 @@
             $idActivity = getParameter(DB_ACTIVITIES_ID,true);
             $responseCode = deleteActivity($idActivity) ? StatusCodes::OK : StatusCodes::FAIL;
             break;
+        case "ModifyActivity":
+            $idActivity = getParameter(DB_ACTIVITIES_ID,true);
+            $newMaxPlayers = getParameter(DB_ACTIVITIES_MAXPLAYERS,true);
+            $newGuestsPlayers = getParameter(DB_ACTIVITIES_GUESTUSERS,true);
+            $responseCode = ModifyActivity($idActivity, $newMaxPlayers, $newGuestsPlayers) ? StatusCodes::OK : StatusCodes::FAIL;
+            break;
         case "ModifyActivityField":
 
             break;
@@ -220,6 +226,7 @@
             case ActivityStatus::STARTED:
             case ActivityStatus::CANCELLED:
             case ActivityStatus::DELETED:
+            case ActivityStatus::ENDED:
                 return false;
         }
         $userId = getLoginParameterFromSession();
@@ -410,5 +417,34 @@
             return dbSelect($query, "is", array($activityId, $timestamp));
         }
         return array();
+    }
+    function ModifyActivity($idActivity, $newMaxPlayers, $newGuestsPlayers)
+    {
+        $userId = getLoginParameterFromSession();
+        $activity = getActivity($idActivity);
+        
+        $totalNewGuests = $activity["joined"] + $newGuestsPlayers + ($activity["DB_ACTIVITIES_ORGANIZERMODE"] == 0 ? 1 : 0);
+        $currentPlayers = $activity["joined"] + $activity["DB_ACTIVITIES_GUESTUSERS"] + ($activity["DB_ACTIVITIES_ORGANIZERMODE"] == 0 ? 1 : 0);
+        if($newMaxPlayers<$currentPlayers || $totalNewGuests > $newMaxPlayers)
+        {
+            LogMessage("ModifyActivity fail: $newMaxPlayers $newGuestsPlayers\n$newMaxPlayers<$currentPlayers || $totalNewGuests > $newMaxPlayers");
+            return false;
+        }
+        
+        $query = "UPDATE ".DB_ACTIVITIES_TABLE." SET ".DB_ACTIVITIES_MAXPLAYERS." = ?, ".DB_ACTIVITIES_GUESTUSERS." = ? WHERE ".DB_ACTIVITIES_ID." = ? AND ".DB_ACTIVITIES_CREATEDBY." = ?";
+        $res1 = dbUpdate($query, "iiii", array($newMaxPlayers, $newGuestsPlayers, $idActivity, $userId));
+        if($res1 && $activity[DB_ACTIVITIES_SPORT] == Sports::FOOTBALL)
+        {
+            $playersPerTeam = $newMaxPlayers/2;
+            $query2 = "UPDATE ".DB_FOOTBALL_TABLE." SET ".DB_FOOTBALL_PLAYERSPERTEAM." = ? WHERE ".DB_FOOTBALL_ID." = ?";
+
+            if($newMaxPlayers % 2 != 0 || !dbUpdate($query2, "iii", array($playersPerTeam, $idActivity)))
+            {
+                ModifyActivity($idActivity, $activity[DB_ACTIVITIES_MAXPLAYERS], $activity[DB_ACTIVITIES_GUESTUSERS]);
+                return false;
+            }
+            return true;
+        }
+        return $res1;
     }
 ?>
