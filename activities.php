@@ -438,7 +438,7 @@
             $playersPerTeam = $newMaxPlayers/2;
             $query2 = "UPDATE ".DB_FOOTBALL_TABLE." SET ".DB_FOOTBALL_PLAYERSPERTEAM." = ? WHERE ".DB_FOOTBALL_ID." = ?";
 
-            if($newMaxPlayers % 2 != 0 || !dbUpdate($query2, "iii", array($playersPerTeam, $idActivity)))
+            if($newMaxPlayers % 2 != 0 || ($res2=dbUpdate($query2, "ii", array($playersPerTeam, $idActivity)))==FALSE)
             {
                 ModifyActivity($idActivity, $activity[DB_ACTIVITIES_MAXPLAYERS], $activity[DB_ACTIVITIES_GUESTUSERS]);
                 return false;
