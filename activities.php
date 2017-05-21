@@ -52,9 +52,11 @@
             $newGuestsPlayers = getParameter(DB_ACTIVITIES_GUESTUSERS,true);
             $responseCode = ModifyActivity($idActivity, $newMaxPlayers, $newGuestsPlayers) ? StatusCodes::OK : StatusCodes::FAIL;
             break;
+            /*
         case "ModifyActivityField":
 
             break;
+            */
         case "MyActivitiesList":
             $status = getParameter(DB_ACTIVITIES_STATUS);
             $sport = getParameter(DB_ACTIVITIES_SPORT);
@@ -67,6 +69,7 @@
             $status = getParameter(DB_ACTIVITIES_STATUS);
             $sport = getParameter(DB_ACTIVITIES_SPORT);
             $responseContent = searchActivities($status, $sport);
+            $responseCode = is_array($responseContent) ? StatusCodes::OK : StatusCodes::FAIL;
             break;
         case "ListAddress":
             $responseCode = StatusCodes::OK;
@@ -271,6 +274,30 @@
             array_push($parameters, $sport);
         }
         $activities = dbSelect($query, $paramTypes, $parameters);
+        $activities = normalizeActivitiesArray($activities);
+        return $activities;
+    }
+    function searchActivities($status, $sport)
+    {
+        $userId = getLoginParameterFromSession();
+        $query = "SELECT act.*,".
+            " bike.".DB_BICYCLE_DISTANCE." as bicycle_".DB_BICYCLE_DISTANCE.", bike.".DB_BICYCLE_TRAVELED." as bicycle_".DB_BICYCLE_TRAVELED.",".
+            " run.".DB_RUNNING_DISTANCE." as running_".DB_RUNNING_DISTANCE.", run.".DB_RUNNING_TRAVELED." as running_".DB_RUNNING_TRAVELED.", run.".DB_RUNNING_FITNESS." as running_".DB_RUNNING_FITNESS.",".
+            " foot.".DB_FOOTBALL_PLAYERSPERTEAM." as football_".DB_FOOTBALL_PLAYERSPERTEAM.",".
+            " ten.".DB_TENNIS_DOUBLE." as tennis_".DB_TENNIS_DOUBLE.",".
+            " addr.".DB_ADDRESS_ID." as mp_".DB_ADDRESS_ID.", addr.".DB_ADDRESS_NAME." as mp_".DB_ADDRESS_NAME.", addr.".DB_ADDRESS_LATITUDE." as mp_".DB_ADDRESS_LATITUDE.", addr.".DB_ADDRESS_LONGITUDE." as mp_".DB_ADDRESS_LONGITUDE.", addr.".DB_ADDRESS_ROUTE." as mp_".DB_ADDRESS_ROUTE.",addr.".DB_ADDRESS_STREETNUMBER." as mp_".DB_ADDRESS_STREETNUMBER.",addr.".DB_ADDRESS_CITY." as mp_".DB_ADDRESS_CITY.",addr.".DB_ADDRESS_REGION." as mp_".DB_ADDRESS_REGION.",addr.".DB_ADDRESS_PROVINCE." as mp_".DB_ADDRESS_PROVINCE.",addr.".DB_ADDRESS_POSTALCODE." as mp_".DB_ADDRESS_POSTALCODE.",addr.".DB_ADDRESS_COUNTRY." as mp_".DB_ADDRESS_COUNTRY.",".
+            " (SELECT COUNT(*) FROM ".DB_ACTIVITIES_JOINS_TABLE." WHERE ".DB_ACTIVITIES_JOINS_ACTIVITY." = act.".DB_ACTIVITIES_ID.") as joinedPlayers FROM ".DB_ACTIVITIES_TABLE." AS act".
+            " LEFT JOIN ".DB_RUNNING_TABLE." AS run ON (act.".DB_ACTIVITIES_SPORT." = 1 AND act.".DB_ACTIVITIES_ID." = run.".DB_RUNNING_ID.")".
+            " LEFT JOIN ".DB_FOOTBALL_TABLE." AS foot ON (act.".DB_ACTIVITIES_SPORT." = 2 AND act.".DB_ACTIVITIES_ID." = foot.".DB_FOOTBALL_ID.")".
+            " LEFT JOIN ".DB_BICYCLE_TABLE." AS bike ON (act.".DB_ACTIVITIES_SPORT." = 3 AND act.".DB_ACTIVITIES_ID." = bike.".DB_BICYCLE_ID.")".
+            " LEFT JOIN ".DB_TENNIS_TABLE." AS ten ON (act.".DB_ACTIVITIES_SPORT." = 4 AND act.".DB_ACTIVITIES_ID." = ten.".DB_TENNIS_ID.")".
+            " LEFT JOIN ".DB_ADDRESS_TABLE." AS addr ON act.".DB_ACTIVITIES_MEETINGPOINT." = addr.".DB_ADDRESS_ID.
+            " WHERE (act.".DB_ACTIVITIES_CREATEDBY." != ? AND act.".DB_ACTIVITIES_ID." NOT IN (SELECT ".DB_ACTIVITIES_JOINS_ACTIVITY." FROM ".DB_ACTIVITIES_JOINS_TABLE." WHERE ".DB_ACTIVITIES_JOINS_USER." = ?))".
+            " AND act.".DB_ACTIVITIES_STATUS." = ?".
+            " AND act.".DB_ACTIVITIES_SPORT." = ?".
+            " AND ".DB_ACTIVITIES_STARTTIME." > DATE(NOW())".
+            " ORDER BY act.".DB_ACTIVITIES_STARTTIME." ASC";
+        $activities = dbSelect($query, "iiii", array($userId,$userId,$status,$sport));
         $activities = normalizeActivitiesArray($activities);
         return $activities;
     }
