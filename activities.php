@@ -31,7 +31,7 @@
             break;
         case "JoinActivity":
             $idActivity = getParameter(DB_ACTIVITIES_ID,true);
-            $responseCode = joinActivity($activityId) ? StatusCodes::OK : StatusCodes::FAIL;
+            $responseCode = joinActivity($idActivity) ? StatusCodes::OK : StatusCodes::FAIL;
             break;
         case "LeaveActivity":
             $idActivity = getParameter(DB_ACTIVITIES_ID, true);
@@ -210,8 +210,9 @@
     function joinActivity($activityId)
     {
         $activity = getActivity($activityId);
-        $actualUsers = 1 + intval($activity["joinedPlayers"]) + intval($activity[DB_ACTIVITIES_GUESTUSERS]);
-        if($actualUsers >= intval($activity[DB_ACTIVITIES_MAXPLAYERS]))
+        $actualUsers = 1 + $activity["joinedPlayers"] + $activity[DB_ACTIVITIES_GUESTUSERS];
+        $maxPlayers = $activity[DB_ACTIVITIES_MAXPLAYERS];
+        if($actualUsers >= $maxPlayers)
             return false;
 
         if(intval($activity[DB_ACTIVITIES_STATUS]) !== ActivityStatus::PENDING)
