@@ -10,6 +10,9 @@
     define('DB_USERS_PHONE', 'phone');
     define('DB_USERS_REGISTRATION', 'registration');
     define('DB_USERS_LASTUPDATE', 'lastUpdate');
+    define("DB_USERS_TIMEZONE","timezone");
+    define("DB_USERS_NOTIFY_NEARBY","notifyNearbyActivities");
+    define("DB_USERS_LOCATION_ID","defaultLocation");
     
     define("DB_ACTIVITIES_JOINS_TABLE","activities_joins");
     define("DB_ACTIVITIES_JOINS_ACTIVITY","id_activity");
@@ -77,4 +80,10 @@
     define("DB_ADDRESS_COUNTRY", "country");
     define("DB_ADDRESS_CREATEDBY", "createdBy");
     define("DB_ADDRESS_ACTIVE", "active");
+
+    define("DB_PUSH_TABLE", "push_devices");
+    define("DB_PUSH_USER","id_user");
+    define("DB_PUSH_TOKEN","token");
+    define("DB_PUSH_DEVICEOS","deviceOS");
+    define("DB_PUSH_DEVICEID","deviceId");
 ?>

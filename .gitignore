@@ -3,4 +3,5 @@ excel/
 *.xlsx
 debug.log
 *.bak
+database/create - *.sql
 database/create - altervista.sql

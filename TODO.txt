@@ -1,0 +1,3 @@
+- rilevazione previsioni meteo (lato client)
+- timezones
+- notifiche push

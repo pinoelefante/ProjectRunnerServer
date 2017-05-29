@@ -38,7 +38,7 @@
         if(!empty($array))
         {
             foreach($array as $key=>$value)
-                $content = $content."$key = $value\n";
+                $content = $content."$key".(is_array($value) ? ":\n{ ".GetArrayToString($value)."}" : " = ".$value)."\n";
         }
         return $content;
     }

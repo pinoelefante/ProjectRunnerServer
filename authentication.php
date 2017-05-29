@@ -16,18 +16,22 @@
     switch($action)
     {
 		case "Register":
-			$username = getParameter("username", true);
-			$password = getParameter("password", true);
-			$email = getParameter("email", true);
-			$firstName = getParameter("firstName");
-			$lastName = getParameter("lastName");
-			$birth = getParameter("birth");
-			$phone = getParameter("phone");
-			$responseCode = register($username,$password, $firstName,$lastName,$birth,$phone,$email);
+			if(!isLogged(false))
+			{
+				$username = getParameter(DB_USERS_USERNAME, true);
+				$password = getParameter(DB_USERS_PASSWORD, true);
+				$email = getParameter(DB_USERS_EMAIL, true);
+				$firstName = getParameter(DB_USERS_FIRSTNAME, true);
+				$lastName = getParameter(DB_USERS_LASTNAME, true);
+				$birth = getParameter(DB_USERS_BIRTH, true);
+				$phone = getParameter(DB_USERS_PHONE, true);
+				$timezone = getParameter(DB_USERS_TIMEZONE, true);
+				$responseCode = register($username,$password, $firstName,$lastName,$birth,$phone,$email, $timezone);
+			}
 			break;
 		case "Login":
-			$username = getParameter("username", true);
-            $password = getParameter("password", true);
+			$username = getParameter(DB_USERS_USERNAME, true);
+            $password = getParameter(DB_USERS_PASSWORD, true);
 			$responseCode = login($username, $password) ? StatusCodes::OK : StatusCodes::LOGIN_ERROR;
 			if($responseCode==StatusCodes::OK)
 				$responseContent = getLoginParameterFromSession();
@@ -49,23 +53,27 @@
 			$responseContent = getProfileInfo();
 			$responseCode = StatusCodes::OK;
 			break;
+		case "SaveOptions":
+			$locationId = getParameter("", true);
+
+			break;
 		case "RecoverPassword":
 			break;
 		case "RegisterPush":
 			if(isLogged())
 			{
-				$token = getParameter("token", true);
-				$deviceType = getParameter("deviceOS", true);
-				$deviceId = getParameter("deviceId", true);
+				$token = getParameter(DB_PUSH_TOKEN, true);
+				$deviceType = getParameter(DB_PUSH_DEVICEOS, true);
+				$deviceId = getParameter(DB_PUSH_DEVICEID, true);
 				$responseCode = RegistraDevice($token, $deviceType,$deviceId);
 			}
 			break;
 		case "UnregisterPush":
 			if(isLogged())
 			{
-				$token = getParameter("token", true);
-				$deviceType = getParameter("deviceOS", true);
-				$deviceId = getParameter("deviceId", true);
+				$token = getParameter(DB_PUSH_TOKEN, true);
+				$deviceType = getParameter(DB_PUSH_DEVICEOS, true);
+				$deviceId = getParameter(DB_PUSH_DEVICEID, true);
 				$responseCode = UnRegistraDevice($token, $deviceType,$deviceId);
 			}
 			break;
@@ -77,25 +85,23 @@
 
 	function login($username, $password)
 	{
-		$query = "SELECT ".DB_USERS_PASSWORD.",".DB_USERS_ID." FROM ".DB_USERS_TABLE." WHERE ".DB_USERS_USERNAME." = ?";
+		$query = "SELECT * FROM ".DB_USERS_TABLE." WHERE ".DB_USERS_USERNAME." = ?";
         $res = dbSelect($query,"s", array($username), true);
 		if($res != null && password_verify($password, $res[DB_USERS_PASSWORD]))
 		{
 			$_SESSION[LOGIN_SESSION_PARAMETER] = $res[DB_USERS_ID];
+			$_SESSION["user_profile"] = array_remove_keys_starts($res, DB_USERS_PASSWORD);
 			return true;
 		}
 		return false;
 	}
-	function register($username,$password, $firstName,$lastName,$birth,$phone,$email)
+	function register($username,$password, $firstName,$lastName,$birth,$phone,$email,$timezone)
 	{
-		$query = "INSERT INTO ".DB_USERS_TABLE." (".DB_USERS_USERNAME.",".DB_USERS_PASSWORD.",".DB_USERS_FIRSTNAME.",".DB_USERS_LASTNAME.",".DB_USERS_BIRTH.",".DB_USERS_PHONE.",".DB_USERS_EMAIL.") VALUES (?,?,?,?,?,?,?)";
+		$query = "INSERT INTO ".DB_USERS_TABLE." (".DB_USERS_USERNAME.",".DB_USERS_PASSWORD.",".DB_USERS_FIRSTNAME.",".DB_USERS_LASTNAME.",".DB_USERS_BIRTH.",".DB_USERS_PHONE.",".DB_USERS_EMAIL.",".DB_USERS_TIMEZONE.") VALUES (?,?,?,?,?,?,?,?)";
 		$passHash = hashPassword($password);
-		$res = dbUpdate($query,"sssssss",array($username,$passHash,$firstName,$lastName,$birth,$phone,$email), DatabaseReturns::RETURN_INSERT_ID);
+		$res = dbUpdate($query,"ssssssss",array($username,$passHash,$firstName,$lastName,$birth,$phone,$email,$timezone), DatabaseReturns::RETURN_INSERT_ID);
 		if($res > 0)
-		{
-			$_SESSION[LOGIN_SESSION_PARAMETER] = $res;
-			return StatusCodes::OK;
-		}
+			return login($username, $password);
 		return StatusCodes::FAIL;
 	}
 	function modifyField($field, $value)
@@ -116,5 +122,9 @@
 		$userId = getLoginParameterFromSessions();
 		$query = "SELECT ".DB_USERS_USERNAME.",".DB_USERS_FIRSTNAME.",".DB_USERS_LASTNAME.",".DB_USERS_EMAIL.",".DB_USERS_BIRTH.",".DB_USERS_PHONE.",".DB_USERS_REGISTRATION.",".DB_USERS_LASTUPDATE." FROM ".DB_USERS_TABLE." WHERE ".DB_USERS_ID." = ?";
 		return dbSelect($query,"i",array($userId));
+	}
+	function SaveOptions($defaultLocation, $timezone, $notifyNearbyActivities)
+	{
+
 	}
 ?>

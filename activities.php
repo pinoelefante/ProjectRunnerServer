@@ -66,10 +66,25 @@
             $responseCode = StatusCodes::OK;
             break;
         case "SearchActivities":
-            $status = getParameter(DB_ACTIVITIES_STATUS);
-            $sport = getParameter(DB_ACTIVITIES_SPORT);
-            $responseContent = searchActivities($status, $sport);
-            $responseCode = is_array($responseContent) ? StatusCodes::OK : StatusCodes::FAIL;
+            if(isLogged())
+            {
+                $status = getParameter(DB_ACTIVITIES_STATUS, true);
+                $sport = getParameter(DB_ACTIVITIES_SPORT, true);
+                $userLat = getParameter("currentLatitude");
+                $userLong = getParameter("currentLongitude");
+                if(($userLat==NULL || $userLong==NULL) && $_SESSION["user_profile"][DB_USERS_LOCATION_ID]!=NULL)
+                {
+                    if(($addr = GetAddress($_SESSION["user_profile"][DB_USERS_LOCATION_ID]))!=NULL)
+                    {
+                        $userLat = $addr[DB_ADDRESS_LATITUDE];
+                        $userLong = $addr[DB_ADDRESS_LONGITUDE];
+                    }
+                    else
+                        break; //responseCode is FAIL
+                }
+                $responseContent = searchActivities($status, $sport, $userLat, $userLong);
+                $responseCode = is_array($responseContent) ? StatusCodes::OK : StatusCodes::FAIL;
+            }
             break;
         case "ListAddress":
             $responseCode = StatusCodes::OK;
@@ -278,8 +293,18 @@
         $activities = normalizeActivitiesArray($activities);
         return $activities;
     }
-    function searchActivities($status, $sport)
+    function searchActivities($status, $sport, $userLatitude, $userLongitude, $mpDistance = 5)
     {
+        $userLatitude = floatval(str_replace(",",".", $userLatitude));
+        $userLongitude = floatval(str_replace(",",".", $userLongitude));
+        $timezone = $_SESSION["user_profile"][DB_USERS_TIMEZONE];
+        $nowDateTime = (new DateTime($timezone))->format("Y-m-d H:i:s");
+        $pointDistance = $mpDistance * LATLONGRADIUSKM;
+        $latMin = $userLatitude - $pointDistance;
+        $latMax = $userLatitude + $pointDistance;
+        $longMin = $userLongitude - $pointDistance;
+        $longMax = $userLongitude + $pointDistance;
+        
         $userId = getLoginParameterFromSession();
         $query = "SELECT act.*,".
             " bike.".DB_BICYCLE_DISTANCE." as bicycle_".DB_BICYCLE_DISTANCE.", bike.".DB_BICYCLE_TRAVELED." as bicycle_".DB_BICYCLE_TRAVELED.",".
@@ -296,9 +321,10 @@
             " WHERE (act.".DB_ACTIVITIES_CREATEDBY." != ? AND act.".DB_ACTIVITIES_ID." NOT IN (SELECT ".DB_ACTIVITIES_JOINS_ACTIVITY." FROM ".DB_ACTIVITIES_JOINS_TABLE." WHERE ".DB_ACTIVITIES_JOINS_USER." = ?))".
             " AND act.".DB_ACTIVITIES_STATUS." = ?".
             " AND act.".DB_ACTIVITIES_SPORT." = ?".
-            " AND ".DB_ACTIVITIES_STARTTIME." > DATE(NOW())".
+            " AND ".DB_ACTIVITIES_STARTTIME." > ?".
+            " AND addr.".DB_ADDRESS_LATITUDE." BETWEEN $latMin AND $latMax AND addr.".DB_ADDRESS_LONGITUDE." BETWEEN $longMin AND $longMax".
             " ORDER BY act.".DB_ACTIVITIES_STARTTIME." ASC";
-        $activities = dbSelect($query, "iiii", array($userId,$userId,$status,$sport));
+        $activities = dbSelect($query, "iiiis", array($userId,$userId,$status,$sport,$nowDateTime));
         $activities = normalizeActivitiesArray($activities);
         return $activities;
     }
@@ -342,6 +368,12 @@
                 break;
         }
         return $activity;
+    }
+    function GetAddress($idAddress)
+    {
+        $userId = getLoginParameterFromSession();
+        $query = "SELECT ".DB_ADDRESS_ID.",".DB_ADDRESS_NAME.",".DB_ADDRESS_LATITUDE.",".DB_ADDRESS_LONGITUDE.",".DB_ADDRESS_ROUTE.",".DB_ADDRESS_STREETNUMBER.",".DB_ADDRESS_CITY.",".DB_ADDRESS_REGION.",".DB_ADDRESS_PROVINCE.",".DB_ADDRESS_POSTALCODE.",".DB_ADDRESS_COUNTRY." FROM ".DB_ADDRESS_TABLE." WHERE ".DB_ADDRESS_CREATEDBY." = ? AND ".DB_ADDRESS_ACTIVE." = 1 AND ".DB_ADDRESS_ID." = ? ORDER BY ".DB_ADDRESS_NAME." ASC";
+        return dbSelect($query, "ii", array($userId,$idAddress), true);
     }
     function listMyAddresses()
     {

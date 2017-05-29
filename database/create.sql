@@ -2,7 +2,7 @@
 -- Host:                         127.0.0.1
 -- Versione server:              10.1.21-MariaDB - mariadb.org binary distribution
 -- S.O. server:                  Win32
--- HeidiSQL Versione:            9.4.0.5169
+-- HeidiSQL Versione:            9.4.0.5173
 -- --------------------------------------------------------
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
@@ -27,7 +27,10 @@ CREATE TABLE IF NOT EXISTS `activities` (
   `status` int(11) NOT NULL DEFAULT '0' COMMENT '0 - pending, 1 - started, 2 - ended, -1 cancelled, -2 deleted',
   `sport` int(11) NOT NULL DEFAULT '1' COMMENT '1 - running, 2 - football, 3 bicycle, 4 - tennis',
   `fee` float NOT NULL,
+  `currency` varchar(4) NOT NULL DEFAULT 'EUR',
   `requiredFeedback` int(11) NOT NULL DEFAULT '0' COMMENT 'user must have a percentage of positive feedback equals or greater than requiredFeedback',
+  `isOrganizerMode` bit(1) NOT NULL DEFAULT b'0',
+  `isPrivate` bit(1) NOT NULL DEFAULT b'0',
   PRIMARY KEY (`id`),
   KEY `FK_activities_users` (`createdBy`),
   KEY `FK_activities_addresses` (`meetingPoint`),
@@ -163,8 +166,13 @@ CREATE TABLE IF NOT EXISTS `users` (
   `phone` varchar(15) DEFAULT NULL,
   `registration` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `lastUpdate` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `timezone` varchar(32) NOT NULL DEFAULT 'Europe/London',
+  `defaultLocation` int(11) DEFAULT NULL,
+  `notifyNearbyActivities` bit(1) NOT NULL DEFAULT b'0',
   PRIMARY KEY (`id`),
-  UNIQUE KEY `username` (`username`)
+  UNIQUE KEY `username` (`username`),
+  KEY `FK_users_addresses` (`defaultLocation`),
+  CONSTRAINT `FK_users_addresses` FOREIGN KEY (`defaultLocation`) REFERENCES `addresses` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- L’esportazione dei dati non era selezionata.
