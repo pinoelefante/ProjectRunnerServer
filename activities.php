@@ -72,6 +72,7 @@
                 $sport = getParameter(DB_ACTIVITIES_SPORT, true);
                 $userLat = getParameter("currentLatitude");
                 $userLong = getParameter("currentLongitude");
+                $mpDistance = getParameter("mpDistance", true);
                 if(($userLat==NULL || $userLong==NULL) && $_SESSION["user_profile"][DB_USERS_LOCATION_ID]!=NULL)
                 {
                     if(($addr = GetAddress($_SESSION["user_profile"][DB_USERS_LOCATION_ID]))!=NULL)
@@ -295,6 +296,7 @@
     }
     function searchActivities($status, $sport, $userLatitude, $userLongitude, $mpDistance = 5)
     {
+        $mpDistance = $mpDistance<-50 || $mpDistance>50 ? 50 : $mpDistance;
         $userLatitude = floatval(str_replace(",",".", $userLatitude));
         $userLongitude = floatval(str_replace(",",".", $userLongitude));
         $timezone = $_SESSION["user_profile"][DB_USERS_TIMEZONE];

@@ -34,7 +34,7 @@
             $password = getParameter(DB_USERS_PASSWORD, true);
 			$responseCode = login($username, $password) ? StatusCodes::OK : StatusCodes::LOGIN_ERROR;
 			if($responseCode==StatusCodes::OK)
-				$responseContent = getLoginParameterFromSession();
+				$responseContent = $_SESSION["user_profile"];
 			break;
 		case "Logout":
 			closeSession();
