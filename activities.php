@@ -401,7 +401,8 @@
                 DB_ADDRESS_PROVINCE => $province,
                 DB_ADDRESS_POSTALCODE => $postalCode,
                 DB_ADDRESS_COUNTRY => $country,
-                DB_ADDRESS_ID => $result
+                DB_ADDRESS_ID => $result,
+                DB_ADDRESS_CREATEDBY => $userId
             );
             return $content;
         }
@@ -410,7 +411,7 @@
     function addAddressFromPoint($name, $latitude, $longitude)
     {
         if(!isLogged())
-            return false;
+            return NULL;
         $address = GetAddressFromLatLong($latitude, $longitude);
         if($address != NULL)
         {
