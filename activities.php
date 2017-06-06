@@ -102,13 +102,13 @@
             $province = getParameter(DB_ADDRESS_PROVINCE);
             $postalCode = getParameter(DB_ADDRESS_POSTALCODE);
             $country = getParameter(DB_ADDRESS_COUNTRY);
-            $responseCode = addAddress($name, $latitude, $longitude, $street, $number, $city, $region, $province, $postalCode, $country) ? StatusCodes::OK : StatusCodes::FAIL;
+            $responseCode = ($responseContent = addAddress($name, $latitude, $longitude, $street, $number, $city, $region, $province, $postalCode, $country)) != NULL ? StatusCodes::OK : StatusCodes::FAIL;
             break;
         case "AddAddressPoint":
             $name = getParameter(DB_ADDRESS_NAME, true);
             $latitude = getParameter(DB_ADDRESS_LATITUDE, true);
             $longitude = getParameter(DB_ADDRESS_LONGITUDE, true);
-            $responseCode = addAddressFromPoint($name, $latitude, $longitude) ? StatusCodes::OK : StatusCodes::FAIL;
+            $responseCode = ($responseContent = addAddressFromPoint($name, $latitude, $longitude)) != NULL ? StatusCodes::OK : StatusCodes::FAIL;
             break;
         case "ReloadAddressInfoFromGoogleMaps":
             $locationId = getParameter(DB_ADDRESS_ID, true);
@@ -387,7 +387,25 @@
     {
         $userId = getLoginParameterFromSession();
         $query = "INSERT INTO ".DB_ADDRESS_TABLE." (".DB_ADDRESS_NAME.",".DB_ADDRESS_LATITUDE.",".DB_ADDRESS_LONGITUDE.",".DB_ADDRESS_ROUTE.",".DB_ADDRESS_STREETNUMBER.",".DB_ADDRESS_CITY.",".DB_ADDRESS_REGION.",".DB_ADDRESS_PROVINCE.",".DB_ADDRESS_POSTALCODE.",".DB_ADDRESS_COUNTRY.",".DB_ADDRESS_CREATEDBY.") VALUES (?,?,?,?,?,?,?,?,?,?,?)";
-        return dbUpdate($query, "sddsisssssi", array($name,$latitude,$longitude,$street,$streetNo,$city,$region,$province,$postalCode,$country,$userId));
+        $result = dbUpdate($query, "sddsisssssi", array($name,$latitude,$longitude,$street,$streetNo,$city,$region,$province,$postalCode,$country,$userId), DatabaseReturns::RETURN_INSERT_ID);
+        if($result > 0)
+        {
+            $content = array(
+                DB_ADDRESS_NAME => $name,
+                DB_ADDRESS_LATITUDE => $latitude,
+                DB_ADDRESS_LONGITUDE => $longitude,
+                DB_ADDRESS_ROUTE => $street,
+                DB_ADDRESS_STREETNUMBER => $streetNo,
+                DB_ADDRESS_CITY => $city,
+                DB_ADDRESS_REGION => $region,
+                DB_ADDRESS_PROVINCE => $province,
+                DB_ADDRESS_POSTALCODE => $postalCode,
+                DB_ADDRESS_COUNTRY => $country,
+                DB_ADDRESS_ID => $result
+            );
+            return $content;
+        }
+        return NULL;
     }
     function addAddressFromPoint($name, $latitude, $longitude)
     {
