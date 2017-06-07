@@ -101,7 +101,7 @@
 		$passHash = hashPassword($password);
 		$res = dbUpdate($query,"ssssssss",array($username,$passHash,$firstName,$lastName,$birth,$phone,$email,$timezone), DatabaseReturns::RETURN_INSERT_ID);
 		if($res > 0)
-			return login($username, $password);
+			return login($username, $password) ? StatusCodes::OK : StatusCodes::FAIL;
 		return StatusCodes::FAIL;
 	}
 	function modifyField($field, $value)
