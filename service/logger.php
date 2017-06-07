@@ -23,12 +23,12 @@
             dbUpdate($query,"is",array($requestId, $responseJson));
         }
     }
-    function LogMessage($messaggio, $file = "log_error.log")
+    function LogMessage($messaggio, $file = "log_error.log", $backtrace = false)
     {
         if(DEBUG_ENABLE && DEBUG_LOG_MESSAGE)
         {
             $timestamp = date("d/m/Y - H:i:s");
-            $line = "$timestamp: $messaggio\n";
+            $line = "$timestamp: $messaggio\n".($backtrace ? GetArrayToString(debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS))."\n" : "");
             file_put_contents ("./logs/$file", $line, FILE_APPEND | LOCK_EX);
         }
     }

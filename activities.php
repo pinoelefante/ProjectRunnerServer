@@ -429,7 +429,7 @@
     function DeleteAddress($locationId)
     {
         $userId = getLoginParameterFromSession();
-        $query = "UPDATE ".DB_ADDRESS_TABLE."SET ".DB_ADDRESS_ACTIVE." = 0 WHERE ".DB_ADDRESS_ID." = ? AND ".DB_ADDRESS_CREATEDBY." = ?";
+        $query = "UPDATE ".DB_ADDRESS_TABLE." SET ".DB_ADDRESS_ACTIVE." = 0 WHERE ".DB_ADDRESS_ID." = ? AND ".DB_ADDRESS_CREATEDBY." = ?";
         $res = dbUpdate($query, "ii", array($locationId, $userId), DatabaseReturns::RETURN_AFFECTED_ROWS);
         return $res > 0;
     }

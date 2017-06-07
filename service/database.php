@@ -8,7 +8,7 @@
         $mysqli = new mysqli(DBADDR, DBUSER, DBPASS, DBNAME);
         if ($mysqli->connect_errno) 
         {
-            LogMessage("(".$mysqli->connect_errno.") ".$mysqli->connect_error, "mysql.log");
+            LogMessage("(".$mysqli->connect_errno.") ".$mysqli->connect_error, "mysql_connect.log");
             sendResponse(StatusCodes::SQL_FAIL);
             exit();
         }
@@ -18,7 +18,7 @@
     function dbClose($mysqli)
     {
         if($mysqli->errno)
-            LogMessage("(".$mysqli->errno.") ".$mysqli->error, "mysql.log");
+            LogMessage("(".$mysqli->errno.") ".$mysqli->error, "mysql.log", true);
         $mysqli->close();
     }
     function dbUpdate($query,$parametersType = null,$parameters = null, $returnType = DatabaseReturns::RETURN_BOOLEAN)
