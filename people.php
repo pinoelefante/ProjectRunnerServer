@@ -1,7 +1,7 @@
 <?php
     session_start();
     
-	require_once("./service/config.php");
+	require_once("./configs/app-config.php");
 	require_once("./service/connections.php");
 	require_once("./service/database.php");
 	require_once("./service/database_tables.php");

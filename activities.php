@@ -1,7 +1,7 @@
 <?php
     session_start();
     
-	require_once("./service/config.php");
+	require_once("./configs/app-config.php");
 	require_once("./service/connections.php");
 	require_once("./service/database.php");
     require_once("./service/database_tables.php");
@@ -121,7 +121,7 @@
         case "ListPeople":
             $idActivity = getParameter(DB_ACTIVITIES_ID,true);
             $responseContent = ListPeople($idActivity);
-            $responseCode = StatusCodes::OK;
+            $responseCode = is_array($responseContent) ? StatusCodes::OK : StatusCodes::FAIL;
             break;
         case "SendChatMessage":
             $activityId = getParameter(DB_ACTIVITIES_CHAT_ACTIVITY, true);
@@ -140,8 +140,9 @@
     }
     sendResponse($responseCode, $responseContent);
 
-    function createActivity($startTime, $meetingPoint, $maxPlayers, $guestUsers, $sport, $fee, $currency, $feedback, $sportDetails)
+    function createActivity($startTime, $meetingPoint, $maxPlayers, $guestUsers, $sport, $fee, $currency, $feedback, $sportDetails, $organizerMode = 0)
     {
+        //TODO verify credits if in organizerMode
         $userId = getLoginParameterFromSession();
         $query = "INSERT INTO ".DB_ACTIVITIES_TABLE." (".DB_ACTIVITIES_CREATEDBY.",".DB_ACTIVITIES_STARTTIME.",".DB_ACTIVITIES_MEETINGPOINT.",".DB_ACTIVITIES_SPORT.",".DB_ACTIVITIES_FEE.",".DB_ACTIVITIES_CURRENCY.",".DB_ACTIVITIES_FEEDBACK.",".DB_ACTIVITIES_MAXPLAYERS.",".DB_ACTIVITIES_GUESTUSERS.") VALUES (?,?,?,?,?,?,?,?,?)";
         $activityId = dbUpdate($query, "isiidsiii", array($userId,$startTime,$meetingPoint, $sport, $fee,$currency, $feedback,$maxPlayers, $guestUsers), DatabaseReturns::RETURN_INSERT_ID);
@@ -149,7 +150,11 @@
         if($activityId > 0)
         {
             if(createSport($activityId, $sport, $sportDetails))
+            {
+                if(!$organizerMode)
+                    joinActivity($activityId);
                 return StatusCodes::OK;
+            }
             else
             {
                 deleteActivitySystem($activityId);
@@ -226,7 +231,7 @@
     function joinActivity($activityId)
     {
         $activity = getActivity($activityId);
-        $actualUsers = 1 + $activity["joinedPlayers"] + $activity[DB_ACTIVITIES_GUESTUSERS];
+        $actualUsers = $activity["joinedPlayers"] + $activity[DB_ACTIVITIES_GUESTUSERS];
         $maxPlayers = $activity[DB_ACTIVITIES_MAXPLAYERS];
         if($actualUsers >= $maxPlayers)
             return false;
@@ -459,20 +464,19 @@
     function ListPeople($activityId)
     {
         $userId = getLoginParameterFromSession();
-        $query = "SELECT ".DB_USERS_ID.", ".DB_USERS_USERNAME." FROM ".DB_USERS_TABLE." WHERE ".DB_USERS_ID." IN (SELECT ".DB_ACTIVITIES_CREATEDBY." FROM ".DB_ACTIVITIES_TABLE." WHERE ".DB_ACTIVITIES_ID." = ?) UNION SELECT ".DB_USERS_ID.", ".DB_USERS_USERNAME." FROM ".DB_USERS_TABLE." WHERE ".DB_USERS_ID." IN (SELECT ".DB_ACTIVITIES_JOINS_USER." FROM ".DB_ACTIVITIES_JOINS_TABLE." WHERE ".DB_ACTIVITIES_JOINS_ACTIVITY." = ?)";
-        $res = dbSelect($query, "ii", array($activityId,$activityId));
-        foreach($res as $item) //verifica che l'utente partecipa all'attività
+        $activity = getActivity($activityId);
+        if($activity[DB_ACTIVITIES_CREATEDBY] == $activityId || IsUserJoinedActivity($activityId, $userId))
         {
-            if($item[DB_USERS_ID] == $userId)
-                return $res;
+            $query = "SELECT ".DB_USERS_ID.", ".DB_USERS_USERNAME.", ".DB_USERS_SEX." FROM ".DB_USERS_TABLE." WHERE ".DB_USERS_ID." IN (SELECT ".DB_ACTIVITIES_JOINS_USER." FROM ".DB_ACTIVITIES_JOINS_TABLE." WHERE ".DB_ACTIVITIES_JOINS_ACTIVITY." = ?)";
+            return dbSelect($query, "i", array($activityId));
         }
-        $res = array();
-        return $res;
+        return null;
     }
     function IsUserJoinedActivity($activityId, $userId)
     {
-        //TODO
-        return true;
+        $query = "SELECT COUNT(*) as joined FROM ".DB_ACTIVITIES_JOINS_TABLE." WHERE ".DB_ACTIVITIES_JOINS_ACTIVITY." = ? AND ".DB_ACTIVITIES_JOINS_USER." = ?";
+        $res = dbSelect($query, "ii", array($activityId, $userId));
+        return $res["joined"];
     }
     function SendChatMessage($activityId, $message)
     {

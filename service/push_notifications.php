@@ -3,7 +3,7 @@
     define("IOS_DEVICE", 2);
     define("WIN10_DEVICE", 3);
 
-    require_once('config.php');
+    require_once(__DIR__."/../configs/app-config.php");
     require_once("logger.php");
     require_once("enums.php");
     require_once("database.php");

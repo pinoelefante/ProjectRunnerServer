@@ -1,5 +1,5 @@
 <?php
-    require_once("config.php");
+    require_once(__DIR__."/../configs/app-config.php");
     require_once("connections.php");
     require_once("enums.php");
     require_once("logger.php");

@@ -1,6 +1,6 @@
 <?php
     //SELECT * FROM log_request as req join log_response as resp ON req.id=resp.request_id 
-    require_once("config.php");
+    require_once(__DIR__."/../configs/app-config.php");
     require_once("database.php");
     require_once("session.php");
     function LogRequest()
@@ -21,6 +21,13 @@
         {
             $query = "INSERT INTO log_response (request_id,response) VALUES (?,?)";
             dbUpdate($query,"is",array($requestId, $responseJson));
+        }
+    }
+    function LogArray($array, $file = "log_array.log")
+    {
+        if(DEBUG_ENABLE)
+        {
+            LogMessage(GetArrayToString($array), $file);
         }
     }
     function LogMessage($messaggio, $file = "log_error.log", $backtrace = false)

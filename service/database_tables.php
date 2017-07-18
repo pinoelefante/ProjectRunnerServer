@@ -13,6 +13,7 @@
     define("DB_USERS_TIMEZONE","timezone");
     define("DB_USERS_NOTIFY_NEARBY","notifyNearbyActivities");
     define("DB_USERS_LOCATION_ID","defaultLocation");
+    define("DB_USERS_SEX", "sex");
     
     define("DB_ACTIVITIES_JOINS_TABLE","activities_joins");
     define("DB_ACTIVITIES_JOINS_ACTIVITY","id_activity");
