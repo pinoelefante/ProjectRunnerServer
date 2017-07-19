@@ -27,6 +27,10 @@
             $friendId = getParameter(DB_FRIEND_REQUEST_FRIEND, true);
             $responseCode = RejectFriendship($friendId) ? StatusCodes::OK : StatusCodes::FAIL;
             break;
+        case "RemoveFriendshipRequest":
+            $friendId = getParameter(DB_FRIEND_REQUEST_FRIEND);
+            $responseCode = DeleteFriendshipRequest(getLoginParameterFromSession(), $friendId) ? StatusCodes::OK : StatusCodes::FAIL;
+            break;
         case "RemoveFriend":
             $friendId = getParameter(DB_FRIEND_FRIEND, true);
             $responseCode = RemoveFriend($friendId) ? StatusCodes::OK : StatusCodes::FAIL;
@@ -48,6 +52,11 @@
             $responseCode = StatusCodes::OK;
             $responseContent = FriendshipReceived();
             break;
+        case "GetProfileInfo":
+            $userId = getParameter(DB_USERS_ID, true);
+			$responseContent = GetProfileInfo($userId);
+			$responseCode = $responseContent != null ? StatusCodes::OK : StatusCodes::FAIL;
+			break;
         default:
             $responseCode = StatusCodes::METODO_ASSENTE;
             break;
@@ -121,4 +130,14 @@
         $query = "SELECT u.".DB_USERS_ID.",u.".DB_USERS_USERNAME.",u.".DB_USERS_FIRSTNAME.",u.".DB_USERS_LASTNAME.",u.".DB_USERS_EMAIL.",u.".DB_USERS_BIRTH.",u.".DB_USERS_PHONE.",u.".DB_USERS_REGISTRATION.",u.".DB_USERS_LASTUPDATE." FROM ".DB_FRIEND_REQUEST_TABLE." AS f JOIN ".DB_USERS_TABLE." AS u ON f.".DB_FRIEND_REQUEST_FRIEND." = u.".DB_USERS_ID." WHERE f.".DB_FRIEND_REQUEST_USER." = ?";
         return dbSelect($query, "i", array($userId));
     }
+    function GetProfileInfo($userId)
+	{
+        $currentUser = getLoginParameterFromSession();
+		$query = "SELECT ".DB_USERS_ID.",".DB_USERS_USERNAME.",".DB_USERS_FIRSTNAME.",".DB_USERS_LASTNAME.",".DB_USERS_EMAIL.",".DB_USERS_BIRTH.",".DB_USERS_PHONE.",".DB_USERS_SEX.
+        ", (SELECT COUNT(*) FROM ".DB_FRIEND_TABLE." WHERE ".DB_FRIEND_USER." = ?) as friendsCount".
+        ", (SELECT COUNT(*) FROM ".DB_FRIEND_TABLE." WHERE ".DB_FRIEND_USER." = ? AND ".DB_FRIEND_FRIEND." = ? ) as isFriend".
+        ", (SELECT COUNT(*) FROM ".DB_FRIEND_REQUEST_TABLE." WHERE ".DB_FRIEND_REQUEST_USER." = ? AND ".DB_FRIEND_REQUEST_FRIEND." = ?) as friendRequest".
+        " FROM ".DB_USERS_TABLE." WHERE ".DB_USERS_ID." = ?";
+		return dbSelect($query,"iiiiii",array($userId,$currentUser,$userId,$currentUser,$userId, $userId), true);
+	}
 ?>

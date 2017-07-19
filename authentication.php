@@ -27,6 +27,8 @@
 				$phone = getParameter(DB_USERS_PHONE, true);
 				$timezone = getParameter(DB_USERS_TIMEZONE, true);
 				$responseCode = register($username,$password, $firstName,$lastName,$birth,$phone,$email, $timezone);
+				if($responseCode == StatusCodes::OK)
+					$responseContent = $_SESSION["user_profile"];
 			}
 			break;
 		case "Login":
@@ -49,10 +51,7 @@
 			$newPassword = getParameter("newPassword", true);
 			$responseCode = modifyPassword($newPassword);
 			break;
-		case "GetProfileInfo":
-			$responseContent = getProfileInfo();
-			$responseCode = StatusCodes::OK;
-			break;
+		
 		case "SaveOptions":
 			$locationId = getParameter("", true);
 
@@ -116,11 +115,6 @@
 		$passHash = hashPassword($newPassword);
 		$query = "UPDATE ".DB_USERS_TABLE." SET ".DB_USERS_PASSWORD." = ? WHERE ".DB_USERS_ID." = ?";
 		return dbUpdate($query, "si", array($newPassword, $userId)) ? StatusCodes::OK : StatusCodes::FAIL;
-	}
-	function getProfileInfo($userId)
-	{
-		$query = "SELECT ".DB_USERS_USERNAME.",".DB_USERS_FIRSTNAME.",".DB_USERS_LASTNAME.",".DB_USERS_EMAIL.",".DB_USERS_BIRTH.",".DB_USERS_PHONE.",".DB_USERS_REGISTRATION.",".DB_USERS_LASTUPDATE.",".DB_USERS_SEX.", (SELECT COUNT(*) FROM ".DB_FRIEND_TABLE." WHERE ".DB_FRIEND_USER." = ?) as friends FROM ".DB_USERS_TABLE." WHERE ".DB_USERS_ID." = ?";
-		return dbSelect($query,"ii",array($userId, $userId));
 	}
 	function SaveOptions($defaultLocation, $timezone, $notifyNearbyActivities)
 	{

@@ -475,7 +475,7 @@
     function IsUserJoinedActivity($activityId, $userId)
     {
         $query = "SELECT COUNT(*) as joined FROM ".DB_ACTIVITIES_JOINS_TABLE." WHERE ".DB_ACTIVITIES_JOINS_ACTIVITY." = ? AND ".DB_ACTIVITIES_JOINS_USER." = ?";
-        $res = dbSelect($query, "ii", array($activityId, $userId));
+        $res = dbSelect($query, "ii", array($activityId, $userId), true);
         return $res["joined"];
     }
     function SendChatMessage($activityId, $message)
