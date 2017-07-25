@@ -5,9 +5,9 @@
     $GLOBALS["IGNORE_AUTH"] = 1;
 
     require_once("./configs/app-config.php");
-    require_once("./configs/databse_tables.php");
+    require_once("./configs/database_tables.php");
     require_once("./service/database.php");
-    require_once("./service/connection.php");
+    require_once("./service/connections.php");
 
     $username = getParameter(DB_USERS_USERNAME, true);
 	$password = getParameter(DB_USERS_PASSWORD, true);
@@ -36,6 +36,7 @@
     {
 		$process = curl_init($_SERVER["REQUEST_SCHEME"]."://".$_SERVER["SERVER_NAME"].substr($_SERVER["PHP_SELF"], 0, strrpos($_SERVER["PHP_SELF"], "/"))."/authentication.php?action=Login");
 		curl_setopt($process, CURLOPT_USERPWD, $username.":".$password);
+        curl_setopt($process, CURLOPT_USERAGENT, $_SERVER["HTTP_USER_AGENT"]);
 		curl_setopt($process, CURLOPT_TIMEOUT, 30);
 		curl_setopt($process, CURLOPT_RETURNTRANSFER, TRUE);
 		$return = curl_exec($process);

@@ -3,6 +3,9 @@
     require_once(__DIR__."/../configs/app-config.php");
     require_once("database.php");
     require_once("session_global.php");
+    
+    set_error_handler("app_error_logger");
+
     function LogRequest()
     {
         if(DEBUG_ENABLE && DEBUG_SAVE_REQUEST)
@@ -68,5 +71,11 @@
         if(isset($_SERVER["PHP_AUTH_USER"]))
             $glob=$glob."RequestBy: ".$_SERVER["PHP_AUTH_USER"]."\n";
         return $glob;
+    }
+    function app_error_logger($errno, $errstr, $errfile, $errline)
+    {
+        $message = "[$errno] $errstr : line $errline in file $errfile";
+        LogMessage("RequestId: ".$GLOBALS['requestId']."\n\n".$message, "php_warnings.log", true);
+        return false;
     }
 ?>
