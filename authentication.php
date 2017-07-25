@@ -1,14 +1,12 @@
 <?php
-    session_start();
-    
 	require_once("./configs/app-config.php");
+	require_once("./configs/database_tables.php");
 	require_once("./service/connections.php");
 	require_once("./service/database.php");
-	require_once("./service/database_tables.php");
     require_once("./service/enums.php");
     require_once("./service/functions.php");
 	require_once("./service/push_notifications.php");
-	require_once("./service/session.php");
+	require_once("./service/session_global.php");
     
     $action = getParameter("action", true);
     $responseCode = StatusCodes::FAIL;
@@ -26,17 +24,19 @@
 				$birth = getParameter(DB_USERS_BIRTH, true);
 				$phone = getParameter(DB_USERS_PHONE, true);
 				$timezone = getParameter(DB_USERS_TIMEZONE, true);
-				$responseCode = register($username,$password, $firstName,$lastName,$birth,$phone,$email, $timezone);
-				if($responseCode == StatusCodes::OK)
-					$responseContent = $_SESSION["user_profile"];
+				$responseContent = register($username,$password, $firstName,$lastName,$birth,$phone,$email, $timezone);
+				if(is_array($responseContent))
+					$responseCode = StatusCodes::OK;
+				else 
+				{
+					$responseCode = $responseContent;
+					$responseContent = null;
+				}
 			}
 			break;
 		case "Login":
-			$username = getParameter(DB_USERS_USERNAME, true);
-            $password = getParameter(DB_USERS_PASSWORD, true);
-			$responseCode = login($username, $password) ? StatusCodes::OK : StatusCodes::LOGIN_ERROR;
-			if($responseCode==StatusCodes::OK)
-				$responseContent = $_SESSION["user_profile"];
+			$responseCode = StatusCodes::OK;
+			$responseContent = login();
 			break;
 		case "Logout":
 			closeSession();
@@ -82,17 +82,13 @@
     }
     sendResponse($responseCode, $responseContent);
 
-	function login($username, $password)
+	function login()
 	{
-		$query = "SELECT * FROM ".DB_USERS_TABLE." WHERE ".DB_USERS_USERNAME." = ?";
-        $res = dbSelect($query,"s", array($username), true);
-		if($res != null && password_verify($password, $res[DB_USERS_PASSWORD]))
-		{
-			$_SESSION[LOGIN_SESSION_PARAMETER] = $res[DB_USERS_ID];
-			$_SESSION["user_profile"] = array_remove_keys_starts($res, DB_USERS_PASSWORD);
-			return true;
-		}
-		return false;
+		//It's not an usual login because login is now done with HTTP Authentication
+		$userId = getLoginParameterFromSession();
+		$query = "SELECT * FROM ".DB_USERS_TABLE." WHERE ".DB_USERS_ID." = ?";
+        $res = dbSelect($query,"i", array($userId), true);
+		return array_remove_keys_starts($res, DB_USERS_PASSWORD);
 	}
 	function register($username,$password, $firstName,$lastName,$birth,$phone,$email,$timezone)
 	{
@@ -100,7 +96,7 @@
 		$passHash = hashPassword($password);
 		$res = dbUpdate($query,"ssssssss",array($username,$passHash,$firstName,$lastName,$birth,$phone,$email,$timezone), DatabaseReturns::RETURN_INSERT_ID);
 		if($res > 0)
-			return login($username, $password) ? StatusCodes::OK : StatusCodes::FAIL;
+			return login($username, $password);
 		return StatusCodes::FAIL;
 	}
 	function modifyField($field, $value)

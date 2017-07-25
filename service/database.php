@@ -10,7 +10,6 @@
         {
             LogMessage("(".$mysqli->connect_errno.") ".$mysqli->connect_error, "mysql_connect.log");
             sendResponse(StatusCodes::SQL_FAIL);
-            exit();
         }
         $mysqli->set_charset("utf8");
         return $mysqli;

@@ -7,7 +7,7 @@
     require_once("logger.php");
     require_once("enums.php");
     require_once("database.php");
-    require_once("session.php");
+    require_once("session_global.php");
 
     function sendPushNotification($titolo,$corpo,$autore,$id_news,$devices)
     {

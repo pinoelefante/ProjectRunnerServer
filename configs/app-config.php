@@ -17,7 +17,12 @@
     define('DEBUG_LOG_MESSAGE',1);
 
     /* Session/login options */
-    define('LOGIN_SESSION_PARAMETER', 'idUtente');
+    define('HTTP_AUTHENTICATION_ENABLED', 1);
+    define('LOGIN_SESSION_PARAMETER', 'UserId');
+	define('AUTH_USER_TABLE', 'users');
+    define('AUTH_USERNAME', 'username');
+    define('AUTH_PASSWORD', 'password');
+    define('AUTH_ID', 'id');
 
     /* Connection options */
     define('CHECK_USER_AGENT', 0);

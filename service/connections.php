@@ -1,11 +1,32 @@
 <?php
     require_once(__DIR__."/../configs/app-config.php");
+    require_once("database.php");
     require_once("enums.php");
     require_once("logger.php");
 
     $requestId = LogRequest();
     checkUserAgent();
+    HTTPAuthentication();
 
+    function HTTPAuthentication()
+    {
+        if(HTTP_AUTHENTICATION_ENABLED)
+        {
+            if(isset($_SERVER['PHP_AUTH_USER']) && isset($_SERVER['PHP_AUTH_PW']))
+            {
+                $username = $_SERVER['PHP_AUTH_USER'];
+                $password = $_SERVER['PHP_AUTH_PW'];
+                $query = "SELECT ".AUTH_PASSWORD.",".AUTH_ID." FROM ".AUTH_USER_TABLE." WHERE ".AUTH_USERNAME." = ?";
+                $res = dbSelect($query,"s", array($username), true);
+                if($res != null && password_verify($password, $res[AUTH_PASSWORD]))
+                {
+                    $GLOBALS[LOGIN_SESSION_PARAMETER] = $res[AUTH_ID];
+                    return;
+                }
+            }
+            sendResponse(StatusCodes::LOGIN_ERROR);
+        }
+    }
     function getParameter($par,$required = false, $maxLenght = -1)
     {
         $parameter = NULL;
@@ -14,15 +35,9 @@
         else if(isset($_GET[$par]))
             $parameter = getValue($_GET,$par);
         if($required && $parameter === NULL)
-        {
             sendResponse(StatusCodes::RICHIESTA_MALFORMATA, "$par is required");
-            die();
-        }
         if($maxLenght > 0 && $parameter!==NULL && strlen($parameter) > $maxLenght)
-        {
             sendResponse(StatusCodes::RICHIESTA_MALFORMATA, "$par max lenght is $maxLenght");
-            die();
-        }
         return $parameter;
     }
     function getValue($array, $key)
@@ -68,6 +83,7 @@
             $corpoMail = "E' stata rilevata una richiesta fallita al server ($response). Ecco la richiesta\n\n<br><br>$debug";
             sendEmailAdmin("[PostApp] Richiesta fallita",$corpoMail);
         }
+        die();
     }
     function sendHTTPRequest($url, $data = NULL, $method = "POST")
     {
@@ -100,7 +116,6 @@
             if($_SERVER['HTTP_USER_AGENT']==CLIENT_USER_AGENT)
                 return true;
             sendResponse(StatusCodes::INVALID_CLIENT);
-            exit();
         }
         return true;
     }
@@ -113,7 +128,7 @@
     }
     function sendEmail($destinatario, $oggetto, $corpo)
     {
-        //mail($destinatario, $oggetto, $corpo);
+        //mail($destinatario, $oggetto, wordwrap($corpo, 70, "\r\n"));
     }
     function sendEmailAdmin($oggetto, $corpo)
     {

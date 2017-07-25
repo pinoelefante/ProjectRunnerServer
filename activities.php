@@ -1,16 +1,14 @@
 <?php
-    session_start();
-    
 	require_once("./configs/app-config.php");
+    require_once("./configs/database_tables.php");
 	require_once("./service/connections.php");
 	require_once("./service/database.php");
-    require_once("./service/database_tables.php");
     require_once("./service/enums.php");
     require_once("./service/functions.php");
     require_once("./service/logger.php");
     require_once("./service/maps.php");
 	require_once("./service/push_notifications.php");
-	require_once("./service/session.php");
+	require_once("./service/session_global.php");
     
     $action = getParameter("action", true);
     $responseCode = StatusCodes::FAIL;
@@ -73,9 +71,9 @@
                 $userLat = getParameter("currentLatitude");
                 $userLong = getParameter("currentLongitude");
                 $mpDistance = getParameter("mpDistance", true);
-                if(($userLat==NULL || $userLong==NULL) && $_SESSION["user_profile"][DB_USERS_LOCATION_ID]!=NULL)
+                if(($userLat==NULL || $userLong==NULL) && GetUserDefaultLocation()!=NULL)
                 {
-                    if(($addr = GetAddress($_SESSION["user_profile"][DB_USERS_LOCATION_ID]))!=NULL)
+                    if(($addr = GetAddress(GetUserDefaultLocation()))!=NULL)
                     {
                         $userLat = $addr[DB_ADDRESS_LATITUDE];
                         $userLong = $addr[DB_ADDRESS_LONGITUDE];
@@ -304,7 +302,7 @@
         $mpDistance = $mpDistance<-50 || $mpDistance>50 ? 50 : $mpDistance;
         $userLatitude = floatval(str_replace(",",".", $userLatitude));
         $userLongitude = floatval(str_replace(",",".", $userLongitude));
-        $timezone = $_SESSION["user_profile"][DB_USERS_TIMEZONE];
+        $timezone = GetUserTimezone();
         $nowDateTime = (new DateTime($timezone))->format("Y-m-d H:i:s");
         $pointDistance = $mpDistance * LATLONGRADIUSKM;
         $latMin = $userLatitude - $pointDistance;
@@ -531,5 +529,31 @@
             return true;
         }
         return $res1;
+    }
+    $UserTimezone = NULL;
+    function GetUserTimezone()
+    {
+        global $UserTimezone;
+        if($UserTimezone == NULL)
+        {
+            $userId = getLoginParameterFromSession();
+            $query = "SELECT ".DB_USERS_TIMEZONE." FROM ".DB_USERS_TABLE." WHERE ".DB_USERS_ID." = ?";
+            $res = dbSelect($query, "i", array($userId), true);
+            $UserTimezone = $res[DB_USERS_TIMEZONE];
+        }
+        return $UserTimezone;
+    }
+    $UserDefaultLocationId = NULL;
+    function GetUserDefaultLocation()
+    {
+        global $UserDefaultLocationId;
+        if($UserDefaultLocationId == NULL)
+        {
+            $userId = getLoginParameterFromSession();
+            $query = "SELECT ".DB_USERS_LOCATION_ID." FROM ".DB_USERS_TABLE." WHERE ".DB_USERS_ID." = ?";
+            $res = dbSelect($query, "i", array($userId), true);
+            $UserDefaultLocationId = $res[DB_USERS_LOCATION_ID];
+        }
+        return $UserDefaultLocationId;
     }
 ?>
