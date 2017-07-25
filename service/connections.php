@@ -10,7 +10,7 @@
 
     function HTTPAuthentication()
     {
-        if(HTTP_AUTHENTICATION_ENABLED)
+        if(HTTP_AUTHENTICATION_ENABLED && !isset($GLOBALS["IGNORE_AUTH"]))
         {
             if(isset($_SERVER['PHP_AUTH_USER']) && isset($_SERVER['PHP_AUTH_PW']))
             {

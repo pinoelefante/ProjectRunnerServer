@@ -13,27 +13,6 @@
     $responseContent = "";
     switch($action)
     {
-		case "Register":
-			if(!isLogged(false))
-			{
-				$username = getParameter(DB_USERS_USERNAME, true);
-				$password = getParameter(DB_USERS_PASSWORD, true);
-				$email = getParameter(DB_USERS_EMAIL, true);
-				$firstName = getParameter(DB_USERS_FIRSTNAME, true);
-				$lastName = getParameter(DB_USERS_LASTNAME, true);
-				$birth = getParameter(DB_USERS_BIRTH, true);
-				$phone = getParameter(DB_USERS_PHONE, true);
-				$timezone = getParameter(DB_USERS_TIMEZONE, true);
-				$responseContent = register($username,$password, $firstName,$lastName,$birth,$phone,$email, $timezone);
-				if(is_array($responseContent))
-					$responseCode = StatusCodes::OK;
-				else 
-				{
-					$responseCode = $responseContent;
-					$responseContent = null;
-				}
-			}
-			break;
 		case "Login":
 			$responseCode = StatusCodes::OK;
 			$responseContent = login();
@@ -89,15 +68,6 @@
 		$query = "SELECT * FROM ".DB_USERS_TABLE." WHERE ".DB_USERS_ID." = ?";
         $res = dbSelect($query,"i", array($userId), true);
 		return array_remove_keys_starts($res, DB_USERS_PASSWORD);
-	}
-	function register($username,$password, $firstName,$lastName,$birth,$phone,$email,$timezone)
-	{
-		$query = "INSERT INTO ".DB_USERS_TABLE." (".DB_USERS_USERNAME.",".DB_USERS_PASSWORD.",".DB_USERS_FIRSTNAME.",".DB_USERS_LASTNAME.",".DB_USERS_BIRTH.",".DB_USERS_PHONE.",".DB_USERS_EMAIL.",".DB_USERS_TIMEZONE.") VALUES (?,?,?,?,?,?,?,?)";
-		$passHash = hashPassword($password);
-		$res = dbUpdate($query,"ssssssss",array($username,$passHash,$firstName,$lastName,$birth,$phone,$email,$timezone), DatabaseReturns::RETURN_INSERT_ID);
-		if($res > 0)
-			return login($username, $password);
-		return StatusCodes::FAIL;
 	}
 	function modifyField($field, $value)
 	{
