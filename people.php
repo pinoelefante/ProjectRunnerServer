@@ -42,14 +42,6 @@
             $responseCode = StatusCodes::OK;
             $responseContent = FriendList();
             break;
-        case "FriendshipRequested":
-            $responseCode = StatusCodes::OK;
-            $responseContent = FriendshipRequested();
-            break;
-        case "FriendshipReceived":
-            $responseCode = StatusCodes::OK;
-            $responseContent = FriendshipReceived();
-            break;
         case "GetProfileInfo":
             $userId = getParameter(DB_USERS_ID, true);
 			$responseContent = GetProfileInfo($userId);
@@ -113,20 +105,12 @@
     function FriendList()
     {
         $userId = getLoginParameterFromSession();
-        $query = "SELECT u.".DB_USERS_ID.",u.".DB_USERS_USERNAME.",u.".DB_USERS_FIRSTNAME.",u.".DB_USERS_LASTNAME.",u.".DB_USERS_EMAIL.",u.".DB_USERS_BIRTH.",u.".DB_USERS_PHONE.",u.".DB_USERS_REGISTRATION.",u.".DB_USERS_LASTUPDATE." FROM ".DB_FRIEND_TABLE." AS f JOIN ".DB_USERS_TABLE." AS u ON f.".DB_FRIEND_FRIEND." = u.".DB_USERS_ID." WHERE f.".DB_FRIEND_USER." = ?";
-        return dbSelect($query, "i", array($userId));
-    }
-    function FriendshipReceived()
-    {
-        $userId = getLoginParameterFromSession();
-        $query = "SELECT u.".DB_USERS_ID.",u.".DB_USERS_USERNAME.",u.".DB_USERS_FIRSTNAME.",u.".DB_USERS_LASTNAME.",u.".DB_USERS_EMAIL.",u.".DB_USERS_BIRTH.",u.".DB_USERS_PHONE.",u.".DB_USERS_REGISTRATION.",u.".DB_USERS_LASTUPDATE." FROM ".DB_FRIEND_REQUEST_TABLE." AS f JOIN ".DB_USERS_TABLE." AS u ON f.".DB_FRIEND_REQUEST_USER." = u.".DB_USERS_ID." WHERE f.".DB_FRIEND_REQUEST_FRIEND." = ?";
-        return dbSelect($query, "i", array($userId));
-    }
-    function FriendshipRequested()
-    {
-        $userId = getLoginParameterFromSession();
-        $query = "SELECT u.".DB_USERS_ID.",u.".DB_USERS_USERNAME.",u.".DB_USERS_FIRSTNAME.",u.".DB_USERS_LASTNAME.",u.".DB_USERS_EMAIL.",u.".DB_USERS_BIRTH.",u.".DB_USERS_PHONE.",u.".DB_USERS_REGISTRATION.",u.".DB_USERS_LASTUPDATE." FROM ".DB_FRIEND_REQUEST_TABLE." AS f JOIN ".DB_USERS_TABLE." AS u ON f.".DB_FRIEND_REQUEST_FRIEND." = u.".DB_USERS_ID." WHERE f.".DB_FRIEND_REQUEST_USER." = ?";
-        return dbSelect($query, "i", array($userId));
+        $query = "SELECT u.username, uf.friend_id as userId, ".FriendshipStatus::IS_FRIEND." as f_status FROM users_friend as uf JOIN users as u ON u.id = uf.friend_id WHERE user_id = ?".
+                 " UNION ". 
+                 "SELECT u.username, uf.friend_id as userId, ".FriendshipStatus::REQUESTED." as f_status FROM users_friend_request as uf JOIN users as u ON u.id = uf.friend_id WHERE user_id = ?".
+                 " UNION ".
+                 "SELECT u.username, uf.user_id as userId, ".FriendshipStatus::RECEIVED." as f_status FROM users_friend_request as uf JOIN users as u ON u.id = uf.user_id WHERE friend_id = ?";
+        return dbSelect($query, "iii", array($userId,$userId,$userId));
     }
     function GetProfileInfo($userId)
 	{

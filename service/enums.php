@@ -40,6 +40,12 @@
         const CANCELLED = -1;
         const DELETED = -2;
     }
+    abstract class FriendshipStatus extends BasicEnum
+    {
+        const IS_FRIEND = 1;
+        const REQUESTED = 2;
+        const RECEIVED  = 3;
+    }
     abstract class MapDistance extends BasicEnum
     {
         const METERS = 1;
