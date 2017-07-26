@@ -32,28 +32,23 @@
 			break;
 		
 		case "SaveOptions":
+			/*
 			$locationId = getParameter("", true);
-
+			*/
 			break;
 		case "RecoverPassword":
 			break;
 		case "RegisterPush":
-			if(isLogged())
-			{
-				$token = getParameter(DB_PUSH_TOKEN, true);
-				$deviceType = getParameter(DB_PUSH_DEVICEOS, true);
-				$deviceId = getParameter(DB_PUSH_DEVICEID, true);
-				$responseCode = RegistraDevice($token, $deviceType,$deviceId);
-			}
+			$token = getParameter(DB_PUSH_TOKEN, true);
+			$deviceType = getParameter(DB_PUSH_DEVICEOS, true);
+			$deviceId = getParameter(DB_PUSH_DEVICEID, true);
+			$responseCode = RegistraDevice($token, $deviceType,$deviceId);
 			break;
 		case "UnregisterPush":
-			if(isLogged())
-			{
-				$token = getParameter(DB_PUSH_TOKEN, true);
-				$deviceType = getParameter(DB_PUSH_DEVICEOS, true);
-				$deviceId = getParameter(DB_PUSH_DEVICEID, true);
-				$responseCode = UnRegistraDevice($token, $deviceType,$deviceId);
-			}
+			$token = getParameter(DB_PUSH_TOKEN, true);
+			$deviceType = getParameter(DB_PUSH_DEVICEOS, true);
+			$deviceId = getParameter(DB_PUSH_DEVICEID, true);
+			$responseCode = UnRegistraDevice($token, $deviceType,$deviceId);
 			break;
         default:
             $responseCode = StatusCodes::METODO_ASSENTE;

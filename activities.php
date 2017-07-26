@@ -64,26 +64,26 @@
             $responseCode = StatusCodes::OK;
             break;
         case "SearchActivities":
-            if(isLogged())
+            $status = getParameter(DB_ACTIVITIES_STATUS, true);
+            $sport = getParameter(DB_ACTIVITIES_SPORT, true);
+            $userLat = getParameter("currentLatitude");
+            $userLong = getParameter("currentLongitude");
+            $mpDistance = getParameter("mpDistance", true);
+            if(($userLat==NULL || $userLong==NULL) && GetUserDefaultLocation()!=NULL)
             {
-                $status = getParameter(DB_ACTIVITIES_STATUS, true);
-                $sport = getParameter(DB_ACTIVITIES_SPORT, true);
-                $userLat = getParameter("currentLatitude");
-                $userLong = getParameter("currentLongitude");
-                $mpDistance = getParameter("mpDistance", true);
-                if(($userLat==NULL || $userLong==NULL) && GetUserDefaultLocation()!=NULL)
+                if(($addr = GetAddress(GetUserDefaultLocation()))!=NULL)
                 {
-                    if(($addr = GetAddress(GetUserDefaultLocation()))!=NULL)
-                    {
-                        $userLat = $addr[DB_ADDRESS_LATITUDE];
-                        $userLong = $addr[DB_ADDRESS_LONGITUDE];
-                    }
-                    else
-                        break; //responseCode is FAIL
+                    $userLat = $addr[DB_ADDRESS_LATITUDE];
+                    $userLong = $addr[DB_ADDRESS_LONGITUDE];
                 }
-                $responseContent = searchActivities($status, $sport, $userLat, $userLong);
-                $responseCode = is_array($responseContent) ? StatusCodes::OK : StatusCodes::FAIL;
+                else
+                {
+                    $responseCode = StatusCodes::FAIL;
+                    break;
+                }
             }
+            $responseContent = searchActivities($status, $sport, $userLat, $userLong);
+            $responseCode = is_array($responseContent) ? StatusCodes::OK : StatusCodes::FAIL;
             break;
         case "ListAddress":
             $responseCode = StatusCodes::OK;
@@ -413,8 +413,6 @@
     }
     function addAddressFromPoint($name, $latitude, $longitude)
     {
-        if(!isLogged())
-            return NULL;
         $address = GetAddressFromLatLong($latitude, $longitude);
         if($address != NULL)
         {

@@ -5,6 +5,7 @@
     
     function isLogged($required = true)
     {
+        /* Overengineered can just simply return true */
         $sessionVer = sessionVerification();
         if($required && !$sessionVer)
             sendResponse(StatusCodes::LOGIN_NON_LOGGATO, "");
