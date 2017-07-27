@@ -42,9 +42,11 @@
     }
     abstract class FriendshipStatus extends BasicEnum
     {
+        const USER_ACCOUNT = 0;
         const IS_FRIEND = 1;
         const REQUESTED = 2;
         const RECEIVED  = 3;
+        const STRANGER = 4;
     }
     abstract class MapDistance extends BasicEnum
     {

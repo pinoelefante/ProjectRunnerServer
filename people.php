@@ -119,7 +119,27 @@
         ", (SELECT COUNT(*) FROM ".DB_FRIEND_TABLE." WHERE ".DB_FRIEND_USER." = ?) as friendsCount".
         ", (SELECT COUNT(*) FROM ".DB_FRIEND_TABLE." WHERE ".DB_FRIEND_USER." = ? AND ".DB_FRIEND_FRIEND." = ? ) as isFriend".
         ", (SELECT COUNT(*) FROM ".DB_FRIEND_REQUEST_TABLE." WHERE ".DB_FRIEND_REQUEST_USER." = ? AND ".DB_FRIEND_REQUEST_FRIEND." = ?) as friendRequest".
+        ", (SELECT COUNT(*) FROM ".DB_FRIEND_REQUEST_TABLE." WHERE ".DB_FRIEND_REQUEST_USER." = ? AND ".DB_FRIEND_REQUEST_FRIEND." = ?) as friendReceived".
         " FROM ".DB_USERS_TABLE." WHERE ".DB_USERS_ID." = ?";
-		return dbSelect($query,"iiiiii",array($userId,$currentUser,$userId,$currentUser,$userId, $userId), true);
+		$res = dbSelect($query,"iiiiiiii",array($userId,$currentUser,$userId,$currentUser,$userId,$userId,$currentUser, $userId), true);
+        
+        if($userId == $currentUser)
+            $status = FriendshipStatus::USER_ACCOUNT;
+        else if($res["isFriend"])
+            $status = FriendshipStatus::IS_FRIEND;
+        else if($res["friendRequest"])
+            $status = FriendshipStatus::REQUESTED;
+        else if($res["friendReceived"])
+            $status = FriendshipStatus::RECEIVED;
+        else 
+            $status = FriendshipStatus::STRANGER;
+        
+        $res = array_remove_keys_starts($res, "isFriend");
+        $res = array_remove_keys_starts($res, "friendRequest");
+        $res = array_remove_keys_starts($res, "friendReceived");
+
+        $res["status"] = $status;
+
+        return $res;
 	}
 ?>
