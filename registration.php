@@ -49,7 +49,7 @@
 	}
     function DoLogin($username, $password)
     {
-		$process = curl_init(/*$_SERVER["REQUEST_SCHEME"].*/"http://".$_SERVER["SERVER_NAME"].substr($_SERVER["PHP_SELF"], 0, strrpos($_SERVER["PHP_SELF"], "/"))."/authentication.php?action=Login");
+		$process = curl_init(/*$_SERVER["REQUEST_SCHEME"].*/"https://".$_SERVER["SERVER_NAME"].substr($_SERVER["PHP_SELF"], 0, strrpos($_SERVER["PHP_SELF"], "/"))."/authentication.php?action=Login");
 		curl_setopt($process, CURLOPT_USERPWD, $username.":".$password);
         curl_setopt($process, CURLOPT_USERAGENT, CLIENT_USER_AGENT);
 		curl_setopt($process, CURLOPT_TIMEOUT, 30);
@@ -76,5 +76,18 @@
                 return $filter;
         }
 	    return $timezone;
+    }
+    /* Not used - Just used to generate Resx for client*/
+    function ListTimezonesToResourceFileResx()
+    {
+        $list = timezone_identifiers_list(DateTimeZone::ALL);
+        $content = "";
+        foreach($list as $t)
+        {
+            $newName = str_replace("-","_minus_",str_replace("/", "__", $t));
+            $value = str_replace("_", " ",substr($t, strrpos($t, "/")+1));
+            $content .= "<data name=\"$newName\" xml:space=\"preserve\">\n\t<value>$value</value>\n</data>\n";
+        }
+        file_put_contents("res.xml", $content);
     }
 ?>

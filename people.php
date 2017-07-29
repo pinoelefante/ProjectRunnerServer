@@ -105,11 +105,11 @@
     function FriendList()
     {
         $userId = getLoginParameterFromSession();
-        $query = "SELECT u.username, uf.friend_id as userId, ".FriendshipStatus::IS_FRIEND." as f_status FROM users_friend as uf JOIN users as u ON u.id = uf.friend_id WHERE user_id = ?".
+        $query = "SELECT u.username, uf.friend_id as ".DB_USERS_ID.", ".FriendshipStatus::IS_FRIEND." as status FROM users_friend as uf JOIN users as u ON u.id = uf.friend_id WHERE user_id = ?".
                  " UNION ". 
-                 "SELECT u.username, uf.friend_id as userId, ".FriendshipStatus::REQUESTED." as f_status FROM users_friend_request as uf JOIN users as u ON u.id = uf.friend_id WHERE user_id = ?".
+                 "SELECT u.username, uf.friend_id as ".DB_USERS_ID.", ".FriendshipStatus::REQUESTED." as status FROM users_friend_request as uf JOIN users as u ON u.id = uf.friend_id WHERE user_id = ?".
                  " UNION ".
-                 "SELECT u.username, uf.user_id as userId, ".FriendshipStatus::RECEIVED." as f_status FROM users_friend_request as uf JOIN users as u ON u.id = uf.user_id WHERE friend_id = ?";
+                 "SELECT u.username, uf.user_id as ".DB_USERS_ID.", ".FriendshipStatus::RECEIVED." as status FROM users_friend_request as uf JOIN users as u ON u.id = uf.user_id WHERE friend_id = ?";
         return dbSelect($query, "iii", array($userId,$userId,$userId));
     }
     function GetProfileInfo($userId)
