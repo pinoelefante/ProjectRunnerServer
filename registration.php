@@ -7,25 +7,39 @@
     require_once("./configs/app-config.php");
     require_once("./configs/database_tables.php");
     require_once("./service/database.php");
+    require_once("./service/enums.php");
     require_once("./service/connections.php");
 
-    $username = getParameter(DB_USERS_USERNAME, true);
-	$password = getParameter(DB_USERS_PASSWORD, true);
-	$email = getParameter(DB_USERS_EMAIL, true);
-	$firstName = getParameter(DB_USERS_FIRSTNAME, true);
-	$lastName = getParameter(DB_USERS_LASTNAME, true);
-	$birth = getParameter(DB_USERS_BIRTH, true);
-	$phone = getParameter(DB_USERS_PHONE, true);
-	$timezone = getParameter(DB_USERS_TIMEZONE, true);
-	
-    if(Register($username,$password, $firstName,$lastName,$birth,$phone,$email, $timezone))
+    $responseCode = StatusCodes::METODO_ASSENTE;
+    $action = getParameter("action", true);
+    switch($action)
     {
-        unset($GLOBALS["IGNORE_AUTH"]);
-        DoLogin($username, $password);
+        case "Register":
+            $username = getParameter(DB_USERS_USERNAME, true);
+            $password = getParameter(DB_USERS_PASSWORD, true);
+            $email = getParameter(DB_USERS_EMAIL, true);
+            $firstName = ucfirst(getParameter(DB_USERS_FIRSTNAME, true));
+            $lastName = ucfirst(getParameter(DB_USERS_LASTNAME, true));
+            $birth = getParameter(DB_USERS_BIRTH);
+            $phone = getParameter(DB_USERS_PHONE);
+            $timezone = getParameter(DB_USERS_TIMEZONE, true);
+            
+            if(Register($username,$password, $firstName,$lastName,$birth,$phone,$email, $timezone))
+            {
+                unset($GLOBALS["IGNORE_AUTH"]);
+                DoLogin($username, $password);
+                return;
+            }
+            $responseCode = StatusCodes::FAIL;
+            break;
+        case "ListTimezones":
+            $country = getParameter("country", true);
+            $responseContent = ListTimezones($country);
+            $responseCode = is_array($responseContent) && count($responseContent) > 0 ? StatusCodes::OK : StatusCodes::FAIL;
+            break;
     }
-    else
-        sendResponse(StatusCodes::FAIL);
-        
+    sendResponse($responseCode, $responseContent);
+      
     function Register($username,$password, $firstName,$lastName,$birth,$phone,$email,$timezone)
 	{
 		$query = "INSERT INTO ".DB_USERS_TABLE." (".DB_USERS_USERNAME.",".DB_USERS_PASSWORD.",".DB_USERS_FIRSTNAME.",".DB_USERS_LASTNAME.",".DB_USERS_BIRTH.",".DB_USERS_PHONE.",".DB_USERS_EMAIL.",".DB_USERS_TIMEZONE.") VALUES (?,?,?,?,?,?,?,?)";
@@ -43,5 +57,10 @@
 		curl_close($process);
         header('Content-Type: application/json');
 		echo $return;
+    }
+    function ListTimezones($country)
+    {
+        $timezone = DateTimeZone::listIdentifiers(DateTimeZone::PER_COUNTRY, $country);
+	    return $timezone;
     }
 ?>
