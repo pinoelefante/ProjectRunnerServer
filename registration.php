@@ -34,7 +34,8 @@
             break;
         case "ListTimezones":
             $country = getParameter("country", true);
-            $responseContent = ListTimezones($country);
+            $offset = getParameter("offset", true);
+            $responseContent = ListTimezones($country, $offset);
             $responseCode = is_array($responseContent) && count($responseContent) > 0 ? StatusCodes::OK : StatusCodes::FAIL;
             break;
     }
@@ -58,9 +59,22 @@
         header('Content-Type: application/json');
 		echo $return;
     }
-    function ListTimezones($country)
+    function ListTimezones($country, $offset)
     {
-        $timezone = DateTimeZone::listIdentifiers(DateTimeZone::PER_COUNTRY, $country);
+        $timezone = timezone_identifiers_list(DateTimeZone::PER_COUNTRY, $country);
+        if(count($timezone) > 1)
+        {
+            $filter = array();
+			$time = new DateTime();
+            foreach ($timezone as $t) 
+            {
+                $o = timezone_offset_get(new DateTimeZone($t), $time);
+                if($offset == $o)
+                    array_push($filter, $t);
+            }
+            if(count($filter) > 0)
+                return $filter;
+        }
 	    return $timezone;
     }
 ?>

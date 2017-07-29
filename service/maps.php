@@ -93,7 +93,8 @@
     {
         $endpoint = "https://maps.googleapis.com/maps/api/geocode/json?address=$address&key=".GOOGLEMAPS_API_KEY;
         //TODO parsing
-        return sendHTTPRequest($endpoint, NULL, "GET");
+        //return sendHTTPRequest($endpoint, NULL, "GET");
+        return null;
     }
     function IsDistanceBetweenPointsLessThan($distance, $latitudeFrom, $longitudeFrom, $latitudeTo, $longitudeTo, $unit = MapDistance::KILOMETERS)
     {
