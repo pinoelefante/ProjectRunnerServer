@@ -47,6 +47,14 @@
 			$responseContent = GetProfileInfo($userId);
 			$responseCode = $responseContent != null ? StatusCodes::OK : StatusCodes::FAIL;
 			break;
+        case "SearchFriends":
+            $search = getParameter("search", true);
+            if(strlen(trim($search))>3)
+            {
+                $responseContent = SearchFriends($search);
+                $responseCode = StatusCodes::OK;
+            }
+			break;
         default:
             $responseCode = StatusCodes::METODO_ASSENTE;
             break;
@@ -142,4 +150,11 @@
 
         return $res;
 	}
+    function SearchFriends($search)
+    {
+        $userId = getLoginParameterFromSession();
+        $query = "SELECT ".DB_USERS_ID.",".DB_USERS_USERNAME." FROM ".DB_USERS_TABLE." WHERE ".DB_USERS_USERNAME." LIKE ? AND ".DB_USERS_ID." != ?";
+        $s = "%$search%";
+        return dbSelect($query, "si", array($s, $userId));
+    }
 ?>
