@@ -49,7 +49,7 @@
 			break;
         case "SearchFriends":
             $search = getParameter("search", true);
-            if(strlen(trim($search))>3)
+            if(strlen(trim($search))>=3)
             {
                 $responseContent = SearchFriends($search);
                 $responseCode = StatusCodes::OK;
