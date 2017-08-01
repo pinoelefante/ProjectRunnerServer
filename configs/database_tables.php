@@ -14,6 +14,13 @@
     define("DB_USERS_NOTIFY_NEARBY","notifyNearbyActivities");
     define("DB_USERS_LOCATION_ID","defaultLocation");
     define("DB_USERS_SEX", "sex");
+    define("DB_USERS_COINS", "coins");
+    define("DB_USERS_EXPERIENCE", "experience");
+    define("DB_USERS_LEVEL", "level");
+    define("DB_USERS_PRIVATE", "private");
+    define("DB_USERS_IMAGE", "image");
+    define("DB_USERS_BANNED", "banned");
+    define("DB_USERS_BAN_TIMESTAMP", "ban_timestamp");
     
     define("DB_ACTIVITIES_JOINS_TABLE","activities_joins");
     define("DB_ACTIVITIES_JOINS_ACTIVITY","id_activity");

@@ -153,7 +153,7 @@
     function SearchFriends($search)
     {
         $userId = getLoginParameterFromSession();
-        $query = "SELECT ".DB_USERS_ID.",".DB_USERS_USERNAME." FROM ".DB_USERS_TABLE." WHERE ".DB_USERS_USERNAME." LIKE ? AND ".DB_USERS_ID." != ?";
+        $query = "SELECT ".DB_USERS_ID.",".DB_USERS_USERNAME." FROM ".DB_USERS_TABLE." WHERE ".DB_USERS_USERNAME." LIKE ? AND ".DB_USERS_ID." != ? AND ".DB_USERS_PRIVATE." = 0";
         $s = "%$search%";
         return dbSelect($query, "si", array($s, $userId));
     }

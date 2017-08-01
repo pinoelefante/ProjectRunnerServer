@@ -20,6 +20,7 @@
             $email = getParameter(DB_USERS_EMAIL, true);
             $firstName = ucfirst(getParameter(DB_USERS_FIRSTNAME, true));
             $lastName = ucfirst(getParameter(DB_USERS_LASTNAME, true));
+            $sex = getParameter(DB_USERS_SEX, true);
             $birth = getParameter(DB_USERS_BIRTH);
             $phone = getParameter(DB_USERS_PHONE);
             $timezone = getParameter(DB_USERS_TIMEZONE, true);
@@ -41,11 +42,11 @@
     }
     sendResponse($responseCode, $responseContent);
       
-    function Register($username,$password, $firstName,$lastName,$birth,$phone,$email,$timezone)
+    function Register($username,$password, $firstName,$lastName,$sex, $birth,$phone,$email,$timezone)
 	{
-		$query = "INSERT INTO ".DB_USERS_TABLE." (".DB_USERS_USERNAME.",".DB_USERS_PASSWORD.",".DB_USERS_FIRSTNAME.",".DB_USERS_LASTNAME.",".DB_USERS_BIRTH.",".DB_USERS_PHONE.",".DB_USERS_EMAIL.",".DB_USERS_TIMEZONE.") VALUES (?,?,?,?,?,?,?,?)";
+		$query = "INSERT INTO ".DB_USERS_TABLE." (".DB_USERS_USERNAME.",".DB_USERS_PASSWORD.",".DB_USERS_FIRSTNAME.",".DB_USERS_LASTNAME.",".DB_USERS_BIRTH.",".DB_USERS_PHONE.",".DB_USERS_EMAIL.",".DB_USERS_TIMEZONE.",".DB_USERS_SEX.") VALUES (?,?,?,?,?,?,?,?,?)";
 		$passHash = hashPassword($password);
-		return dbUpdate($query,"ssssssss",array($username,$passHash,$firstName,$lastName,$birth,$phone,$email,$timezone), DatabaseReturns::RETURN_INSERT_ID);
+		return dbUpdate($query,"ssssssssi",array($username,$passHash,$firstName,$lastName,$birth,$phone,$email,$timezone,$sex), DatabaseReturns::RETURN_INSERT_ID);
 	}
     function DoLogin($username, $password)
     {

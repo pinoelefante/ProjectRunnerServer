@@ -21,20 +21,9 @@
 			closeSession();
 			$responseCode = StatusCodes::OK;
 			break;
-		case "ModifyField":
-			$field = getParameter("field", true);
-			$value = getParameter("newValue", true);
-			$responseCode = modifyField($field, $value);
-			break;
 		case "ModifyPassword":
 			$newPassword = getParameter("newPassword", true);
 			$responseCode = modifyPassword($newPassword);
-			break;
-		
-		case "SaveOptions":
-			/*
-			$locationId = getParameter("", true);
-			*/
 			break;
 		case "RecoverPassword":
 			break;
@@ -64,23 +53,11 @@
         $res = dbSelect($query,"i", array($userId), true);
 		return array_remove_keys_starts($res, DB_USERS_PASSWORD);
 	}
-	function modifyField($field, $value)
-	{
-		$userId = getLoginParameterFromSession();
-		$query = "UPDATE ".DB_USERS_TABLE." SET $field = ? WHERE ".DB_USERS_ID." = ?";
-		return dbUpdate($query, "si", array($value, $userId)) ? StatusCodes::OK : StatusCodes::FAIL;
-	}
 	function modifyPassword($newPassword)
 	{
 		$userId = getLoginParameterFromSession();
 		$passHash = hashPassword($newPassword);
 		$query = "UPDATE ".DB_USERS_TABLE." SET ".DB_USERS_PASSWORD." = ? WHERE ".DB_USERS_ID." = ?";
 		return dbUpdate($query, "si", array($newPassword, $userId)) ? StatusCodes::OK : StatusCodes::FAIL;
-	}
-	function SaveOptions($defaultLocation, $timezone, $notifyNearbyActivities)
-	{
-		$userId = getLoginParameterFromSession();
-		$query = "UPDATE ".DB_USERS_TABLE." SET ".DB_USERS_LOCATION_ID." = ?, ".DB_USERS_TIMEZONE." = ?, ".DB_USERS_NOTIFY_NEARBY." = ? WHERE ".DB_USERS_ID." = ?";
-		return dbUpdate($query, "isii", array($defaultLocation,$timezone,$notifyNearbyActivities,$userId));
 	}
 ?>
