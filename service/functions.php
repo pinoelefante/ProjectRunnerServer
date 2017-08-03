@@ -112,7 +112,7 @@
 	{
 		do 
 		{
-			$filename = uniqid($prefix, true).str_replace(".","_");
+			$filename = str_replace(".", "_", uniqid($prefix, true));
 			usleep(1);
 		}
         while(file_exists($folder."/".$filename.$ext));

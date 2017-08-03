@@ -66,7 +66,8 @@
 		$userId = getLoginParameterFromSession();
 		$request = hash("md5","".microtime(true));
 		$path = "./images/users/$userId/$type";
-		@mkdir($path, "0664", true);
+		if(!file_exists($path))
+			@mkdir($path, "0664", true);
 		$filename = GenerateUniqueFilename($path,"user", $ext);
 		$query = "INSERT INTO ".DB_IMAGE_UPLOAD_TABLE." (".DB_IMAGE_UPLOAD_REQUEST.",".DB_IMAGE_UPLOAD_USER.",".DB_IMAGE_UPLOAD_CHECKSUM.",".DB_IMAGE_UPLOAD_TYPE.",".DB_IMAGE_UPLOAD_FILENAME.",".DB_IMAGE_UPLOAD_ALBUM.") VALUES (?,?,?,?,?,?)";
 		if(($rowId = dbUpdate($query, "sisssi", array($request, $userId, $checksum, $type, $filename,$albumId), DatabaseReturns::RETURN_INSERT_ID)) > 0)
@@ -93,7 +94,8 @@
 					return false;
 			}
 			$folder = "./images/users/$userId/".$request[DB_IMAGE_UPLOAD_TYPE];
-			@mkdir($folder, 0664, true);
+			if(!file_exists($folder))
+				@mkdir($folder, 0664, true);
 			$filepath = "./$folder/".$request[DB_IMAGE_UPLOAD_FILENAME];
 			$fp = fopen($filepath, "wb");
 			$writeOk = fwrite($fp, $fileContent);
