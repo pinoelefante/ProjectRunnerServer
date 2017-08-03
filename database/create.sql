@@ -154,6 +154,23 @@ CREATE TABLE IF NOT EXISTS `push_devices` (
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- L’esportazione dei dati non era selezionata.
+-- Dump della struttura di tabella projectrunners.upload_image_request
+CREATE TABLE IF NOT EXISTS `upload_image_request` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `requestHash` varchar(32) NOT NULL,
+  `userId` int(10) unsigned NOT NULL,
+  `checksum` varchar(32) NOT NULL,
+  `type` varchar(10) NOT NULL,
+  `filename` varchar(32) NOT NULL,
+  `album_id` int(10) unsigned DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `userId_type_filename` (`userId`,`type`,`filename`),
+  KEY `FK_upload_image_request_user_album` (`album_id`),
+  CONSTRAINT `FK_upload_image_request_user_album` FOREIGN KEY (`album_id`) REFERENCES `users_album` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `FK_upload_image_request_users` FOREIGN KEY (`userId`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+-- L’esportazione dei dati non era selezionata.
 -- Dump della struttura di tabella projectrunners.users
 CREATE TABLE IF NOT EXISTS `users` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
@@ -181,6 +198,28 @@ CREATE TABLE IF NOT EXISTS `users` (
   UNIQUE KEY `username` (`username`),
   KEY `FK_users_addresses` (`defaultLocation`),
   CONSTRAINT `FK_users_addresses` FOREIGN KEY (`defaultLocation`) REFERENCES `addresses` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+-- L’esportazione dei dati non era selezionata.
+-- Dump della struttura di tabella projectrunners.users_album
+CREATE TABLE IF NOT EXISTS `users_album` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `userId` int(10) unsigned NOT NULL,
+  `name` varchar(50) NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `userId_name` (`userId`,`name`),
+  CONSTRAINT `FK_user_album_users` FOREIGN KEY (`userId`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+-- L’esportazione dei dati non era selezionata.
+-- Dump della struttura di tabella projectrunners.users_album_pictures
+CREATE TABLE IF NOT EXISTS `users_album_pictures` (
+  `album_id` int(10) unsigned NOT NULL,
+  `picture_file` varchar(32) NOT NULL,
+  `added` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `description` tinytext,
+  PRIMARY KEY (`album_id`,`picture_file`),
+  CONSTRAINT `FK_user_album_pictures_user_album` FOREIGN KEY (`album_id`) REFERENCES `users_album` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- L’esportazione dei dati non era selezionata.

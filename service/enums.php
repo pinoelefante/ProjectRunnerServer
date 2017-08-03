@@ -53,6 +53,11 @@
         const METERS = 1;
         const KILOMETERS = 1000;
     }
+    abstract class UploadImageType extends BasicEnum
+    {
+        const PROFILE = "profile";
+        const ALBUM = "album";
+    }
 
     abstract class BasicEnum {
         private static $constCacheArray = NULL;

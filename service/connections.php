@@ -81,7 +81,7 @@
         {
             $debug = GetDebugMessage();
             $corpoMail = "E' stata rilevata una richiesta fallita al server ($response). Ecco la richiesta\n\n<br><br>$debug";
-            sendEmailAdmin("[PostApp] Richiesta fallita",$corpoMail);
+            sendEmailAdmin("[WebAPI] Richiesta fallita",$corpoMail);
         }
         die();
     }

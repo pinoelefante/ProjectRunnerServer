@@ -25,7 +25,7 @@
             $phone = getParameter(DB_USERS_PHONE);
             $timezone = getParameter(DB_USERS_TIMEZONE, true);
             
-            if(Register($username,$password, $firstName,$lastName,$birth,$phone,$email, $timezone))
+            if(Register($username,$password, $firstName,$lastName,$sex,$birth,$phone,$email, $timezone))
             {
                 unset($GLOBALS["IGNORE_AUTH"]);
                 DoLogin($username, $password);
@@ -42,7 +42,7 @@
     }
     sendResponse($responseCode, $responseContent);
       
-    function Register($username,$password, $firstName,$lastName,$sex, $birth,$phone,$email,$timezone)
+    function Register($username,$password, $firstName,$lastName,$sex,$birth,$phone,$email,$timezone)
 	{
 		$query = "INSERT INTO ".DB_USERS_TABLE." (".DB_USERS_USERNAME.",".DB_USERS_PASSWORD.",".DB_USERS_FIRSTNAME.",".DB_USERS_LASTNAME.",".DB_USERS_BIRTH.",".DB_USERS_PHONE.",".DB_USERS_EMAIL.",".DB_USERS_TIMEZONE.",".DB_USERS_SEX.") VALUES (?,?,?,?,?,?,?,?,?)";
 		$passHash = hashPassword($password);

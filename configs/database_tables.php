@@ -94,4 +94,24 @@
     define("DB_PUSH_TOKEN","token");
     define("DB_PUSH_DEVICEOS","deviceOS");
     define("DB_PUSH_DEVICEID","deviceId");
+
+    define("DB_IMAGE_UPLOAD_TABLE", "upload_image_request");
+    define("DB_IMAGE_UPLOAD_ID","id");
+    define("DB_IMAGE_UPLOAD_REQUEST","requestHash");
+    define("DB_IMAGE_UPLOAD_USER","userId");
+    define("DB_IMAGE_UPLOAD_CHECKSUM","checksum");
+    define("DB_IMAGE_UPLOAD_TYPE","type");
+    define("DB_IMAGE_UPLOAD_FILENAME","filename");
+    define("DB_IMAGE_UPLOAD_ALBUM","album_id");
+
+    define("DB_ALBUM_TABLE", "users_album");
+    define("DB_ALBUM_ID","id");
+    define("DB_ALBUM_USER","userId");
+    define("DB_ALBUM_NAME","name");
+
+    define("DB_ALBUM_PICTURES_TABLE","users_album_pictures");
+    define("DB_ALBUM_PICTURES_ALBUM","album_id");
+    define("DB_ALBUM_PICTURES_PICTURE","picture_file");
+    define("DB_ALBUM_PICTURES_TIME","added");
+    define("DB_ALBUM_PICTURES_DESCRIPTION","description");
 ?>

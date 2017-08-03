@@ -17,7 +17,7 @@
         if(!empty($immagineBytes))
         {
             @mkdir($folder, 0664, true); // 0664 = lettura/scrittura proprietario&gruppo, lettura utenti
-            $filename = GeneraUniqueFileName($folder, "IMG");
+            $filename = GenerateUniqueFilename($folder, "IMG");
             $fp = fopen("./$folder/$filename", "wb");
             if(fwrite($fp, $immagineBytes))
             {
@@ -33,7 +33,7 @@
                 else //il file non è un'immagine valida
                 {
                     if(!unlink("./$result"))
-                        sendEmailAdmin("[PostApp] File non valido","E' stato caricato un file che non è un'immagine ma non è stato possibile cancellarlo\n<br>Nome file: $result");
+                        sendEmailAdmin("[ProjectRunner] File non valido","E' stato caricato un file che non è un'immagine ma non è stato possibile cancellarlo\n<br>Nome file: $result");
                     $result = NULL;
                 }
             }
@@ -108,15 +108,15 @@
         }
         return false;
     }
-    function GeneraUniqueFileName($folder, $prefix = "IMG")
+    function GenerateUniqueFilename($folder, $prefix = "IMG", $ext = ".jpg")
 	{
 		do 
 		{
-			$filename = uniqid("IMG", true);
-			usleep(2);
+			$filename = uniqid($prefix, true).str_replace(".","_");
+			usleep(1);
 		}
-        while(file_exists($folder."/".$filename));
-		return $filename;
+        while(file_exists($folder."/".$filename.$ext));
+		return $filename.$ext;
 	}
     
     function costTimeHashPassword($timeTarget = 0.05 /*50ms*/)

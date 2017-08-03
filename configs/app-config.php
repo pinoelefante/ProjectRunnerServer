@@ -38,4 +38,7 @@
 
     /* Maps service */
     define("GOOGLEMAPS_API_KEY", "AIzaSyDVPJKCj8wPi50f1x3BV_rUrOKRaDI6ZXM");
+
+    /* File upload */
+    define("CHECKSUM_FILE_ENABLED", 1);
 ?>
