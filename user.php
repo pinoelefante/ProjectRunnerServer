@@ -42,7 +42,14 @@
 			$request = getParameter(DB_IMAGE_UPLOAD_REQUEST, true);
 			$file = getParameter("content", true);
 			$description = getParameter("description");
-			$responseCode = SaveImage($id,$request, $file, $description) ? StatusCodes::OK : StatusCodes::FAIL;
+			$con = SaveImage($id,$request, $file, $description);
+			if($con == false)
+				$responseCode = StatusCodes::FAIL;
+			else
+			{
+				$responseCode = StatusCodes::OK;
+				$responseContent = $con;
+			}
 			break;
 		default:
 			break;
@@ -102,13 +109,17 @@
 			fclose($fp);
             if($writeOk)
 			{
+				$ok = false;
 				switch($request[DB_IMAGE_UPLOAD_TYPE])
 				{
 					case UploadImageType::PROFILE:
-						return UpdateProfileImage($request[DB_IMAGE_UPLOAD_FILENAME]);
+						$ok = UpdateProfileImage($request[DB_IMAGE_UPLOAD_FILENAME]);
+						break;
 					case UploadImageType::ALBUM:
-						return UpdateAlbum($request[DB_IMAGE_UPLOAD_FILENAME], $request[DB_IMAGE_UPLOAD_ALBUM], $description);
+						$ok = UpdateAlbum($request[DB_IMAGE_UPLOAD_FILENAME], $request[DB_IMAGE_UPLOAD_ALBUM], $description);
+						break;
 				}
+				return $ok ? $request[DB_IMAGE_UPLOAD_FILENAME] : false;
 			}
 			else 
 				unlink($filepath);
