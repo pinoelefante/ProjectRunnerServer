@@ -132,6 +132,14 @@
             $responseContent = ReadChatMessages($activityId, $timestamp);
             $responseCode = StatusCodes::OK;
             break;
+        case "StartActivity":
+            $activityId = getParameter(DB_ACTIVITIES_ID, true);
+            $responseCode = StartActivity($activityId) ? StatusCodes::OK : StatusCodes::FAIL;
+            break;
+        case "FinishActivity":
+            $activity = getParameter(DB_ACTIVITIES_ID, true);
+            $responseCode = FinishActivity($activity) ? StatusCodes::OK : StatusCodes::FAIL;
+            break;
         default:
             $responseCode = StatusCodes::METODO_ASSENTE;
             break;
@@ -553,5 +561,41 @@
             $UserDefaultLocationId = $res[DB_USERS_LOCATION_ID];
         }
         return $UserDefaultLocationId;
+    }
+    function StartActivity($activityId)
+    {
+        $userId = getLoginParameterFromSession();
+        $activity = getActivity($activityId);
+        if($activity == null)
+            return false;
+        if($activity[DB_ACTIVITIES_CREATEDBY] != $userId)
+            return false;
+        if($activity[DB_ACTIVITIES_STATUS] == ActivityStatus::PENDING)
+            return ChangeActivityStatus($activityId, ActivityStatus::STARTED);
+        return false;
+    }
+    function FinishActivity($activityId)
+    {
+        $userId = getLoginParameterFromSession();
+        $activity = getActivity($activityId);
+        if($activity == null)
+            return false;
+        if($activity[DB_ACTIVITIES_CREATEDBY] != $userId)
+            return false;
+        if($activity[DB_ACTIVITIES_STATUS] == ActivityStatus::STARTED)
+        {
+            if(ChangeActivityStatus($activityId, ActivityStatus::ENDED))
+            {
+                //TODO Update levels and experience
+                return true;
+            }
+        }
+        return false;
+    }
+    function ChangeActivityStatus($activity, $status)
+    {
+        $userId = getLoginParameterFromSession();
+        $query = "UPDATE ".DB_ACTIVITIES_TABLE." SET ".DB_ACTIVITIES_STATUS." = ? WHERE ".DB_ACTIVITIES_ID." = ? AND ".DB_ACTIVITIES_CREATEDBY." = ?";
+        return dbUpdate($query, "iii", array($status, $activity, $userId));
     }
 ?>
