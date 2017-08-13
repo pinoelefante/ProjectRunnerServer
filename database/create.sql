@@ -138,6 +138,7 @@ CREATE TABLE IF NOT EXISTS `log_request` (
 CREATE TABLE IF NOT EXISTS `log_response` (
   `request_id` bigint(20) unsigned NOT NULL,
   `response` text,
+  `executionTime` float NOT NULL DEFAULT '0',
   PRIMARY KEY (`request_id`),
   CONSTRAINT `FK_log_response_log_request` FOREIGN KEY (`request_id`) REFERENCES `log_request` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
@@ -191,7 +192,7 @@ CREATE TABLE IF NOT EXISTS `users` (
   `experience` int(10) unsigned NOT NULL DEFAULT '0',
   `level` int(10) unsigned NOT NULL DEFAULT '1',
   `private` bit(1) NOT NULL DEFAULT b'0',
-  `image` varchar(20) DEFAULT NULL,
+  `image` varchar(32) DEFAULT NULL,
   `banned` bit(1) NOT NULL DEFAULT b'0',
   `ban_timestamp` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`),

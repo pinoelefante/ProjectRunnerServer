@@ -33,7 +33,7 @@
                 else //il file non è un'immagine valida
                 {
                     if(!unlink("./$result"))
-                        sendEmailAdmin("[ProjectRunner] File non valido","E' stato caricato un file che non è un'immagine ma non è stato possibile cancellarlo\n<br>Nome file: $result");
+                        sendEmailAdmin("[".APP_TITLE."] File non valido","E' stato caricato un file che non è un'immagine ma non è stato possibile cancellarlo\n<br>Nome file: $result");
                     $result = NULL;
                 }
             }

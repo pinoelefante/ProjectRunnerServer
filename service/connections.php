@@ -4,6 +4,7 @@
     require_once("enums.php");
     require_once("logger.php");
 
+    $startTime = microtime(true);
     $requestId = LogRequest();
     checkUserAgent();
     HTTPAuthentication();
@@ -69,19 +70,21 @@
     }
     function sendResponse($response, $content = "")
     {
+        global $requestId, $startTime;
         $array = array('response' => $response, 
                        'time' => date("Y-m-d H:i:s"),
                        'content' => empty($content) ? "" : $content );
         header('Content-Type: application/json');
         $responseJson = json_encode($array);
-        LogResponse($responseJson, $GLOBALS['requestId']);
+
         echo $responseJson;
+        LogResponse($responseJson, $requestId, (microtime(true) - $startTime));
 
         if($response<0)
         {
             $debug = GetDebugMessage();
             $corpoMail = "E' stata rilevata una richiesta fallita al server ($response). Ecco la richiesta\n\n<br><br>$debug";
-            sendEmailAdmin("[WebAPI] Richiesta fallita",$corpoMail);
+            sendEmailAdmin("[".APP_TITLE."] Richiesta fallita",$corpoMail);
         }
         die();
     }

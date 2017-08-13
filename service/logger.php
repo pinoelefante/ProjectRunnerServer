@@ -18,12 +18,12 @@
             return dbUpdate($query,"ssss",array($server,$post,$get,$session), DatabaseReturns::RETURN_INSERT_ID);
         }
     }
-    function LogResponse($responseJson, $requestId)
+    function LogResponse($responseJson, $requestId, $executionTime = 0)
     {
         if(DEBUG_ENABLE && DEBUG_SAVE_RESPONSE)
         {
-            $query = "INSERT INTO log_response (request_id,response) VALUES (?,?)";
-            dbUpdate($query,"is",array($requestId, $responseJson));
+            $query = "INSERT INTO log_response (request_id,response, executionTime) VALUES (?,?,?)";
+            dbUpdate($query,"isd",array($requestId, $responseJson,$executionTime));
         }
     }
     function LogArray($array, $file = "log_array.log")

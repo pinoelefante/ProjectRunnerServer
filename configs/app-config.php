@@ -1,5 +1,6 @@
 <?php
     define('WEBAPI_VERSION', 1);
+    define("APP_TITLE", "PRServer");
     
     /* Database options */
     define('DBADDR', 'localhost');
@@ -28,7 +29,7 @@
     define('CHECK_USER_AGENT', 0);
     define('CLIENT_USER_AGENT','ProjectRunnerUA');
     define('REVERSE_PROXY_ENABLED', 0); //es: Cloudflare
-    define('REVERSE_PROXY_REMOTE_ADDRESS', 'HTTP_CF_CONNECTING_IP');
+    define('REVERSE_PROXY_REMOTE_ADDRESS', 'HTTP_CF_CONNECTING_IP'); //Cloudflare: HTTP_CF_CONNECTING_IP
 
     /* Admin options */
     define('ADMIN_EMAIL', 'email@admin.com');
