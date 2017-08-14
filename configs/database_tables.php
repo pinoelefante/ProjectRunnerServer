@@ -106,8 +106,9 @@
 
     define("DB_ALBUM_TABLE", "users_album");
     define("DB_ALBUM_ID","id");
-    define("DB_ALBUM_USER","userId");
+    define("DB_ALBUM_USER","owner");
     define("DB_ALBUM_NAME","name");
+    define("DB_ALBUM_ACTIVITY","activity");
 
     define("DB_ALBUM_PICTURES_TABLE","users_album_pictures");
     define("DB_ALBUM_PICTURES_ALBUM","album_id");

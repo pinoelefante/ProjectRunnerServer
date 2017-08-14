@@ -205,11 +205,14 @@ CREATE TABLE IF NOT EXISTS `users` (
 -- Dump della struttura di tabella projectrunners.users_album
 CREATE TABLE IF NOT EXISTS `users_album` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `userId` int(10) unsigned NOT NULL,
   `name` varchar(50) NOT NULL,
+  `owner` int(10) unsigned DEFAULT NULL,
+  `activity` int(10) unsigned DEFAULT NULL,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `userId_name` (`userId`,`name`),
-  CONSTRAINT `FK_user_album_users` FOREIGN KEY (`userId`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+  KEY `FK_users_album_users` (`owner`),
+  KEY `FK_users_album_activities` (`activity`),
+  CONSTRAINT `FK_users_album_activities` FOREIGN KEY (`activity`) REFERENCES `activities` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT `FK_users_album_users` FOREIGN KEY (`owner`) REFERENCES `users` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- L’esportazione dei dati non era selezionata.
